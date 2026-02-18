@@ -1,0 +1,27 @@
+
+-ExpandProperty <System.String>
+    Specifies a property to select, and indicates that an attempt should be made to expand that property. If the input object pipeline doesn't have the property named, `Select-Object` returns an error.
+    
+    - If the specified property is an array, each value of the array is included in the output.
+    
+    - If the specified property is an object, the objects properties are expanded for every InputObject In either case, the output objects' Type matches the expanded property's Type .
+    
+    > [!NOTE] > There is a side-effect when using ExpandProperty . The `Select-Object` adds the selected > properties to the original object as NoteProperty members.
+    
+    If the Property parameter is specified, `Select-Object` attempts to add each selected property as a NoteProperty to every outputted object.
+    
+    > [!WARNING] > If you receive an error that a property can't be processed because a property with that name > already exists, consider the following. Note that when using ExpandProperty , 
+    `Select-Object` > can't replace an existing property. This means: > > - If the expanded object has a property of the same name, the command returns an error. > - If the Selected object has a property of 
+    the same name as an Expanded object's property, the >   command returns an error.
+    
+    Required?                    false
+    Position?                    named
+    Default value                None
+    Accept pipeline input?       False
+    Aliases                      none
+    Accept wildcard characters?  false
+    
+
+
+
+

@@ -1,0 +1,3063 @@
+Create a CLI utility called "jps" which accepts json documents either from a "-InputFile <file>" parameter or from stdin.
+The overall goal is to accept JSON text, convert it to objects and perform a variety of functions using the PowerShell syntax but implemented in RUST.  
+
+Everything accepting user input or access object properties must be case insensitive.  
+e.g. -INPUTFILE == -inputfile == -InputFile
+e.g. FORMAT-TABLE -PROPERTY A, B == format-table -property a, b
+
+Parameters may be fully specified or partially specified
+e.g -InputFile == Input == -In
+
+Whenever you access an object property, the property name is considered case insensitive and you can use wildcards to match the property name.  When Wildcards are used, it can map to multiple propertynames
+e.g. Format-Table -Property USERNAME, USERDIR, USERENV == Format-Table -Property USER*
+
+
+
+Syntax:
+jps [Options] { [SCRIPT] } 
+
+[Options]
+-InputFile <file>  has aliases -IN, -I, -IF
+
+[SCRIPT]
+The value of this script is a Pipeline of utilities using as much of the  PowerShell syntax as it can support.  The script is a string that is parsed and executed by the utility.  The script can be provided as a parameter or read from stdin.  
+
+Any utility that is named FORMAT-<SOMETHING> can be specified with that full name or just <SOMETHING>
+e.g.  Format-Table == Table
+
+Any Utility that is named <SOMETHING>-Object can be specified with that full  name or just <SOMETHING>
+e.g.  Where-Object == WHERE
+
+[PROCESSING]
+The utility will read the JSON text from the specified file or stdin, convert it to objects, and then execute the provided script using those objects as input. The script will be parsed and executed in a manner similar to PowerShell, allowing for a variety of functions to be performed on the JSON data.  e.g.
+e.g. somecommand | jps { where-Object handlecount -gt 1000 | select-Object name, id, handlecount | sort-Object handlecount -desc | format-table -autosize }
+e.g. somecommand | jps { where handle* -gt 1000 | select N*, id, H* | sort handlecount -desc | table -autosize }
+
+
+
+
+
+[Utilities]
+
+
+NAME
+Format-Table
+    
+SYNOPSIS
+Formats the output as a table.
+    
+    
+SYNTAX
+Format-Table [[-Property] <System.Object[]>] [-AutoSize] [-DisplayError] [-Expand { CoreOnly | EnumOnly | Both }] [-Force] [-GroupBy <System.Object>] [-HideTableHeaders] [-InputObject <System.Management.Automation.PSObject>] [-RepeatHeader] [-ShowError] [-View <System.String>] [-Wrap] [<CommonParameters>]
+    
+    
+DESCRIPTION
+The `Format-Table` cmdlet formats the output of a command as a table with the selected properties of the object in each column. The object type determines the default layout and properties that are displayed in each column. You can use the Property parameter to select the properties that you want to display.
+    
+PowerShell uses default formatters to define how object types are displayed. You can use `.ps1xml` files to create custom views that display an output table with specified properties. After a custom view is created, use the View parameter to display the table with your custom view. For more information about views, see about_Format.ps1xml (../Microsoft.PowerShell.Core/About/about_Format.ps1xml.md).
+    
+You can use a hash table to add calculated properties to an object before displaying it and to specify the column headings in the table. To add a calculated property, use the Property or GroupBy parameter. For more information about hash tables, see about_Hash_Tables (../Microsoft.PowerShell.Core/About/about_Hash_Tables.md).
+    
+
+PARAMETERS
+-AutoSize <System.Management.Automation.SwitchParameter>
+Indicates that the cmdlet adjusts the column size and number of columns based on the width of the data. By default, the column size and number are determined by the view.
+        
+Required?                    false
+Position?                    named
+Default value                False
+Accept pipeline input?       False
+Aliases                      none
+Accept wildcard characters?  false
+        
+-DisplayError <System.Management.Automation.SwitchParameter>
+Indicates that the cmdlet displays errors on the command line. This parameter can be used as a debugging aid when you're formatting expressions in a `Format-Table` command and need to troubleshoot the expressions.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Expand <System.String>
+        Specifies the format of the collection object and the objects in the collection. This parameter is designed to format objects that support the ICollection (xref:System.Collections.ICollection)([System.Collections](xref:System.Collections))interface. The default value is EnumOnly . The acceptable values for this parameter are as follows:
+        
+        - EnumOnly : Displays the properties of the objects in the collection. - CoreOnly : Displays the properties of the collection object. - Both : Displays the properties of the collection object and the properties of objects in the   collection.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Force <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet directs the cmdlet to display all the error information. Use with the DisplayError or ShowError parameter. By default, when an error object is written to the error or display streams, only some error information is displayed.
+        
+        Also required when formatting certain .NET types. For more information, see the Notes (#notes)section.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -GroupBy <System.Object>
+        Specifies sorted output in separate tables based on a property value. For example, you can use GroupBy to list services in separate tables based on their status.
+        
+        Enter an expression or a property. The GroupBy parameter expects that the objects are sorted. Use the `Sort-Object` cmdlet before using `Format-Table` to group the objects.
+        
+        The value of the GroupBy parameter can be a new calculated property. The calculated property can be a script block or a hash table. Valid key-value pairs are:
+        
+        - Name (or Label) - `<string>`
+        
+        - Expression - `<string>` or `<script block>`
+        
+        - FormatString - `<string>`
+        
+        
+        For more information, see about_Calculated_Properties (../Microsoft.PowerShell.Core/About/about_Calculated_Properties.md).
+        
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -HideTableHeaders <System.Management.Automation.SwitchParameter>
+        Omits the column headings from the table.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -InputObject <System.Management.Automation.PSObject>
+        Specifies the objects to format. Enter a variable that contains the objects, or type a command or expression that gets the objects.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       True (ByValue)
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Property <System.Object[]>
+        Specifies the object properties that appear in the display and the order in which they appear. Type one or more property names, separated by commas, or use a hash table to display a calculated property. Wildcards are permitted.
+        
+        If you omit this parameter, the properties that appear in the display depend on the first object's properties. For example, if the first object has PropertyA and PropertyB but subsequent objects have PropertyA , PropertyB , and PropertyC , then only the PropertyA and PropertyB headers are displayed.
+        
+The Property parameter is optional. You can't use the Property and View parameters in the same command.
+        
+        The value of the Property parameter can be a new calculated property. The calculated property can be a script block or a hash table. Valid key-value pairs are:
+        
+        - Name (or Label) `<string>`
+        
+        - Expression - `<string>` or `<script block>`
+        
+        - FormatString - `<string>`
+        
+        - Width - `<int32>` - must be greater than `0`
+        
+        - Alignment - value can be `Left`, `Center`, or `Right`
+        
+        
+        For more information, see about_Calculated_Properties (../Microsoft.PowerShell.Core/About/about_Calculated_Properties.md).
+        
+        
+        Required?                    false
+        Position?                    0
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  true
+        
+    -RepeatHeader <System.Management.Automation.SwitchParameter>
+        Repeats displaying the header of a table after every screen full. The repeated header is useful when the output is piped to a pager such as `less` or `more` or paging with a screen reader.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -ShowError <System.Management.Automation.SwitchParameter>
+        This parameter sends errors through the pipeline. This parameter can be used as a debugging aid when you're formatting expressions in a `Format-Table` command and need to troubleshoot the expressions.
+        
+Required?                    false
+Position?                    named
+Default value                False
+Accept pipeline input?       False
+Aliases                      none
+Accept wildcard characters?  false
+        
+-View <System.String>
+Beginning in PowerShell 6, the default views are defined in PowerShell `C#` source code. The `*.format.ps1xml` files from PowerShell 5.1 and earlier versions don't exist in PowerShell 6 and later versions.
+        
+        The View parameter lets you specify an alternate format or custom view for the table. You can use the default PowerShell views or create custom views. For more information about how to create a custom view, see about_Format.ps1xml (../Microsoft.PowerShell.Core/About/about_Format.ps1xml.md).
+        
+        The alternate and custom views for the View parameter must use the table format, otherwise, `Format-Table` fails. If the alternate view is a list, use the `Format-List` cmdlet. If the alternate view isn't a list or a table, use the `Format-Custom` cmdlet.
+        
+You can't use the Property and View parameters in the same command.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Wrap <System.Management.Automation.SwitchParameter>
+        Displays text that exceeds the column width on the next line. By default, text that exceeds the column width is truncated.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+        OutBuffer, PipelineVariable, and OutVariable. For more information, see
+        about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216). 
+    
+INPUTS
+    System.Management.Automation.PSObject
+        You can pipe any object to this cmdlet.
+    
+    
+OUTPUTS
+    Microsoft.PowerShell.Commands.Internal.Format
+        This cmdlet returns format objects that represent the table.
+    
+    
+NOTES
+    
+    
+        PowerShell includes the following aliases for `Format-Table`:
+        
+        - All platforms:   - `ft`
+        
+        PowerShell 7.2 introduced new features to colorize output. The colors can be managed using the `$PSStyle` automatic variable. The `$PSStyle.Formatting.TableHeader` property defines the color used for the header of the table displayed by `Format-Table`. For more information about this setting, see about_ANSI_Terminals (../microsoft.powershell.core/about/about_ansi_terminals.md).
+        
+        If you want to use `Format-Table` with the Property parameter, you need to include the Force parameter under any of the following conditions:
+        
+        - The input objects are normally formatted out-of-band using the `ToString()` method. This applies   to `[string]` and .NET primitive types, which are a superset of the built-in numeric types such as   `[int]`, `[long]`, and others.
+        
+        - The input objects have no public properties.
+        
+        - The input objects are instances of the wrapper types PowerShell uses for output streams other   than the Success output stream. This applies only when these wrapper types are sent to the Success   output stream that requires either having captured them via common parameters such as ErrorVariable first or using a redirection such as `*>&1`.
+        
+        - The wrapper types include:
+        
+        - System.Management.Automation.ErrorRecord (xref:System.Management.Automation.ErrorRecord)- System.Management.Automation.WarningRecord (xref:System.Management.Automation.WarningRecord)- System.Management.Automation.VerboseRecord (xref:System.Management.Automation.VerboseRecord)- System.Management.Automation.DebugRecord (xref:System.Management.Automation.DebugRecord)- System.Management.Automation.InformationRecord (xref:System.Management.Automation.InformationRecord)
+    
+    -------------- Example 1: Format PowerShell host --------------
+    
+    Get-Host | Format-Table -AutoSize
+    
+    The `Get-Host` cmdlet gets System.Management.Automation.Internal.Host.InternalHost objects that represent the host. The objects are sent down the pipeline to `Format-Table` and displayed in a table. The AutoSize parameter adjusts the column widths to minimize truncation.
+    --------- Example 2: Format processes by BasePriority ---------
+    
+    Get-Process | Sort-Object -Property BasePriority |
+        Format-Table -GroupBy BasePriority -Wrap
+    
+    The `Get-Process` cmdlet gets objects that represent each process on the computer and sends them down the pipeline to `Sort-Object`. The objects are sorted in the order of their BasePriority property.
+    
+    The sorted objects are sent down the pipeline to `Format-Table`. The GroupBy parameter arranges the process data into groups based on their BasePriority property's value. The Wrap parameter ensures that data isn't truncated.
+    ---------- Example 3: Format processes by start date ----------
+    
+    Get-Process | Sort-Object StartTime | Format-Table -View StartTime
+    
+    `Get-Process` gets the System.Diagnostics.Process objects that represent the processes running on the computer. The objects are sent down the pipeline to `Sort-Object`, and are sorted based on the StartTime property.
+    
+    The sorted objects are sent down the pipeline to `Format-Table`. The View parameter specifies the StartTime view that's defined in the PowerShell `DotNetTypes.format.ps1xml` file for System.Diagnostics.Process objects. The StartTime view converts each processes start time to a short date and then groups the processes by the start date.
+    
+The `DotNetTypes.format.ps1xml` file contains a Priority view for processes. You can create your own `format.ps1xml` files with customized views.
+-------- Example 4: Use a custom view for table output --------
+    
+Get-ChildItem  -Path C:\Test | Format-Table -View MyGciView
+    
+Directory: C:\Test
+    
+Mode                LastWriteTime              CreationTime         Length Name
+----                ------------ - ------------         ------ ----
+d-----        11/4/2019     15:54       9/24/2019     15:54                Archives
+d-----        8/27/2019     14:22       8/27/2019     14:22                Drawings
+d-----       10/23/2019     09:38       2/25/2019     09:38                Files
+-a----        11/7/2019     11:07       11/7/2019     11:07          11345 Alias.txt
+-a----        2/27/2019     15:15       2/27/2019     15:15            258 alias_out.txt
+-a----        2/27/2019     15:16       2/27/2019     15:16            258 alias_out2.txt
+    
+`Get-ChildItem` gets the contents of the current directory, `C:\Test`. The System.IO.DirectoryInfo and System.IO.FileInfo objects are sent down the pipeline. `Format-Table` uses the View parameter to specify the custom view MyGciView that includes the CreationTime column.
+    
+The default `Format-Table` output for `Get-ChildItem` doesn't include the CreationTime column.
+    ---------- Example 5: Use properties for table output ----------
+    
+    Get-Service | Format-Table -Property Name, DependentServices
+    
+    `Get-Service` gets all the services on the computer and sends the System.ServiceProcess.ServiceController objects down the pipeline. `Format-Table` uses the Property parameter to specify that the Name and DependentServices properties are displayed in the table. Name and DependentServices are two of the object type's properties. To view all the properties: `Get-Service | Get-Member -MemberType Properties`
+-- Example 6: Format a process and calculate its running time --
+    
+Get-Process notepad |
+Format-Table ProcessName, @{
+    Label      = "TotalRunningTime"
+    Expression = { (Get-Date) - $_.StartTime }
+}
+    
+ProcessName TotalRunningTime
+---------- - ----------------
+notepad     03:20:00.2751767
+notepad     00:00:16.7710520
+    
+`Get-Process` gets all the local computer's notepad processes and sends the objects down the pipeline. `Format-Table` displays a table with two columns: ProcessName , a `Get-Process` property, and TotalRunningTime , a calculated property.
+    
+    The TotalRunningTime property is specified by a hash table with two keys, Label and Expression . The Label key specifies the property name. The Expression key specifies the calculation. The expression gets the StartTime property of each process object and subtracts it from the result of a `Get-Date` command, which gets the current date and time.
+    ------------- Example 7: Format Notepad processes -------------
+    
+    $Processes = Get-CimInstance -Class Win32_Process -Filter "name='notepad.exe'"
+    $Processes | Format-Table ProcessName, @{
+        Label = "Total Running Time"
+        Expression = {(Get-Date) - $_.CreationDate}
+    }
+    
+    ProcessName Total Running Time
+    ----------- ------------------
+    notepad.exe 03:39:39.6260693
+    notepad.exe 00:19:56.1376922
+    
+    `Get-CimInstance` gets instances of the WMI Win32_Process class that describes all the local computer's processes named notepad.exe . The process objects are stored in the `$Processes` variable.
+    
+The process objects in the `$Processes` variable are sent down the pipeline to `Format-Table`, which displays the ProcessName property and a new calculated property, Total Running Time .
+    
+The command assigns the name of the new calculated property, Total Running Time , to the Label key. The Expression key's script block calculates how long the process has been running by subtracting the processes creation date from the current date. The `Get-Date` cmdlet gets the current date. The creation date is subtracted from the current date. The result is the value of Total Running Time .
+    ----------- Example 8: Troubleshooting format errors -----------
+    
+    Get-Date | Format-Table DayOfWeek, { $_ / $null } -DisplayError
+    
+    DayOfWeek  $_ / $null
+    --------- ------------
+    Wednesday #ERR
+    
+    Get-Date | Format-Table DayOfWeek, { $_ / $null } -ShowError
+    
+    DayOfWeek  $_ / $null
+    --------- ------------
+    Wednesday
+    
+    InvalidArgument: Failed to evaluate expression " $_ / $null ".
+    
+    
+    
+RELATED LINKS
+    Online Version: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/format-table?view=powershell-7.5&WT.mc_id=ps-gethelp
+    about_Calculated_Properties 
+    about_Format.ps1xml 
+    about_Hash_Tables 
+    Export-FormatData 
+    Format-Custom 
+    Format-Hex 
+    Format-List 
+    Format-Wide 
+    Get-FormatData 
+    Get-Member 
+    Get-CimInstance 
+    Update-FormatData 
+
+
+
+NAME
+    Format-List
+    
+SYNOPSIS
+    Formats the output as a list of properties in which each property appears on a new line.
+    
+    
+SYNTAX
+    Format-List [[-Property] <System.Object[]>] [-DisplayError] [-Expand {CoreOnly | EnumOnly | Both}] [-Force] [-GroupBy <System.Object>] [-InputObject <System.Management.Automation.PSObject>] [-ShowError] [-View <System.String>] [<CommonParameters>]
+    
+    
+DESCRIPTION
+    The `Format-List` cmdlet formats the output of a command as a list of properties in which each property is displayed on a separate line. You can use `Format-List` to format and display all or selected properties of an object as a list (`Format-List -Property *`).
+    
+    Because more space is available for each item in a list than in a table, PowerShell displays more properties of the object in the list, and the property values are less likely to be truncated.
+    
+
+PARAMETERS
+    -DisplayError <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet displays errors at the command line. This parameter is rarely used, but can be used as a debugging aid when you are formatting expressions in a `Format-List` command, and the expressions do not appear to be working.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Expand <System.String>
+        Specifies the formatted collection object, as well as the objects in the collection. This parameter is designed to format objects that support the System.Collections.ICollection interface. The default value is `EnumOnly`. The acceptable values for this parameter are:
+        
+        - `EnumOnly`. Displays the properties of the objects in the collection.
+        
+        - `CoreOnly`. Displays the properties of the collection object.
+        
+        - `Both`. Displays the properties of the collection object and the properties of objects in the
+        
+        collection.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Force <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet displays all the error information. Use with the DisplayError or ShowError parameter. By default, when an error object is written to the error or display streams, only some error information is displayed.
+        
+        Also required when formatting certain .NET types. For more information, see the Notes (#notes)section.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -GroupBy <System.Object>
+        Specifies the output in groups based on a shared property or value. Enter an expression or a property of the output. The GroupBy parameter expects that the objects are sorted. Use the `Sort-Object` cmdlet before using `Format-List` to group the objects.
+        
+        The value of the GroupBy parameter can be a new calculated property. The calculated property can be a script block or a hash table. Valid key-value pairs are:
+        
+        - `Name` (or `Label`) - `<string>`
+        
+        - `Expression` - `<string>` or `<script block>`
+        
+        - `FormatString` - `<string>`
+        
+        
+        For more information, see about_Calculated_Properties (../Microsoft.PowerShell.Core/About/about_Calculated_Properties.md).
+        
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -InputObject <System.Management.Automation.PSObject>
+        Specifies the objects to be formatted. Enter a variable that contains the objects or type a command or expression that gets the objects.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       True (ByValue)
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Property <System.Object[]>
+        Specifies the object properties that appear in the display and the order in which they appear. Wildcards are permitted.
+        
+        If you omit this parameter, the properties that appear in the display depend on the object being displayed. The parameter name Property is optional. You cannot use the Property and View parameters in the same command.
+        
+        The value of the Property parameter can be a new calculated property. The calculated property can be a script block or a hash table. Valid key-value pairs are:
+        
+        - `Name` (or `Label`) - `<string>`
+        
+        - `Expression` - `<string>` or `<script block>`
+        
+        - `FormatString` - `<string>`
+        
+        
+        For more information, see about_Calculated_Properties (../Microsoft.PowerShell.Core/About/about_Calculated_Properties.md).
+        
+        
+        Required?                    false
+        Position?                    0
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  true
+        
+    -ShowError <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet sends errors through the pipeline. This parameter is rarely used, but can be used as a debugging aid when you are formatting expressions in a `Format-List` command, and the expressions do not appear to be working.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -View <System.String>
+        Specifies the name of an alternate list format or view. You cannot use the Property and View parameters in the same command.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+        OutBuffer, PipelineVariable, and OutVariable. For more information, see
+        about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216). 
+    
+INPUTS
+    System.Management.Automation.PSObject
+        You can pipe any object to this cmdlet.
+    
+    
+OUTPUTS
+    Microsoft.PowerShell.Commands.Internal.Format
+        This cmdlet returns the format objects that represent the list.
+    
+    
+NOTES
+    
+    
+        PowerShell includes the following aliases for `Format-List`:
+        
+        - All platforms:   - `fl`
+        
+        The format cmdlets, such as `Format-List`, arrange the data to be displayed but do not display it. The data is displayed by the output features of PowerShell and by the cmdlets that contain the `Out` verb (the `Out` cmdlets), such as `Out-Host` or `Out-File`.
+        
+        If you do not use a format cmdlet, PowerShell applies that default format for each object that it displays.
+        
+        The View parameter lets you specify an alternate format for the table. You can use the views defined in the `*.format.ps1xml` files in the PowerShell directory, or you can create your own views in new PS1XML files and use the `Update-FormatData` cmdlet to include them in PowerShell.
+        
+        The alternate view for the View parameter must use the list format, otherwise, the command fails. If the alternate view is a table, use `Format-Table`. If the alternate view is not a list or a table, use `Format-Custom`.
+        
+        If you want to use `Format-List` with the Property parameter, you need to include the Force parameter under any of the following conditions:
+        
+        - The input objects are formatted out-of-band using the `ToString()` method. This applies to   `[string]` and .NET primitive types that are a superset of the built-in numeric types such as   `[int]`, `[long]`, and others.
+        
+        - The input objects have no public properties.
+        
+        - The input objects are instances of the wrapper types PowerShell uses for output streams other   than the Success output stream. This applies only when these wrapper types are sent to the Success   output stream, which requires either having captured them via common parameters such as ErrorVariable first or using a redirection such as `*>&1`.
+        
+        - The wrapper types include:
+        
+        - System.Management.Automation.ErrorRecord (xref:System.Management.Automation.ErrorRecord)- System.Management.Automation.WarningRecord (xref:System.Management.Automation.WarningRecord)- System.Management.Automation.VerboseRecord (xref:System.Management.Automation.VerboseRecord)- System.Management.Automation.DebugRecord (xref:System.Management.Automation.DebugRecord)- System.Management.Automation.InformationRecord (xref:System.Management.Automation.InformationRecord)
+    
+    ------------- Example 1: Format computer services -------------
+    
+    Get-Service | Format-List
+    
+    This command formats information about services on the computer as a list. By default, the services are formatted as a table. The `Get-Service` cmdlet gets objects representing the services on the computer. The pipeline operator (`|`) passes the results through the pipeline to `Format-List`. Then, the `Format-List` command formats the service information in a list and sends it to the default output cmdlet for display.
+    ---------------- Example 2: Format PS1XML files ----------------
+    
+    $A = Get-ChildItem $PSHOME\*.ps1xml
+    Format-List -InputObject $A
+    
+    The first command gets the objects representing the files and stores them in the `$A` variable.
+    
+    The second command uses `Format-List` to format information about objects stored in `$A`. This command uses the InputObject parameter to pass the variable to `Format-List`, which then sends the formatted output to the default output cmdlet for display.
+    --------- Example 3: Format process properties by name ---------
+    
+    Get-Process | Format-List -Property Name, BasePriority, PriorityClass
+    
+    It uses the `Get-Process` cmdlet to get an object representing each process. The pipeline operator (`|`) passes the process objects through the pipeline to `Format-List`. `Format-List` formats the processes as a list of the specified properties. The Property parameter name is optional, so you can omit it.
+    -------- Example 4: Format all properties for a process --------
+    
+    Get-Process winlogon | Format-List -Property *
+    
+    It uses the Get-Process cmdlet to get an object representing the Winlogon process. The pipeline operator (`|`) passes the Winlogon process object through the pipeline to `Format-List`. The command uses the Property parameter to specify the properties and the `*` to indicate all properties. Because the name of the Property parameter is optional, you can omit it and type the command as `Format-List *`. `Format-List` automatically sends the results to the default output cmdlet for display.
+    ----------- Example 5: Troubleshooting format errors -----------
+    
+    PC /> Get-Date | Format-List DayOfWeek, { $_ / $null } -DisplayError
+    
+    DayOfWeek    : Friday
+     $_ / $null  : #ERR
+    
+    PC /> Get-Date | Format-List DayOfWeek, { $_ / $null } -ShowError
+    
+    DayOfWeek    : Friday
+     $_ / $null  :
+    
+    Failed to evaluate expression " $_ / $null ".
+    + CategoryInfo          : InvalidArgument: (12/21/2018 7:59:23 AM:PSObject) [], RuntimeException
+    + FullyQualifiedErrorId : PSPropertyExpressionError
+    
+    
+    
+RELATED LINKS
+    Online Version: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/format-list?view=powershell-7.5&WT.mc_id=ps-gethelp
+    about_Calculated_Properties 
+    Format-Custom 
+    Format-Hex 
+    Format-Table 
+    Format-Wide 
+
+
+
+
+
+NAME
+    Select-Object
+    
+SYNOPSIS
+    Selects objects or object properties.
+    
+    
+SYNTAX
+    Select-Object [[-Property] <System.Object[]>] [-CaseInsensitive] [-ExcludeProperty <System.String[]>] [-ExpandProperty <System.String>] [-First <System.Int32>] [-InputObject <System.Management.Automation.PSObject>] [-Last <System.Int32>] [-Skip <System.Int32>] [-Unique] [-Wait] [<CommonParameters>]
+    
+    Select-Object [[-Property] <System.Object[]>] [-CaseInsensitive] [-ExcludeProperty <System.String[]>] [-ExpandProperty <System.String>] [-InputObject <System.Management.Automation.PSObject>] [-SkipLast <System.Int32>] [-Unique] [<CommonParameters>]
+    
+    Select-Object [-CaseInsensitive] [-Index <System.Int32[]>] [-InputObject <System.Management.Automation.PSObject>] [-Unique] [-Wait] [<CommonParameters>]
+    
+    Select-Object [-CaseInsensitive] [-InputObject <System.Management.Automation.PSObject>] [-SkipIndex <System.Int32[]>] [-Unique] [<CommonParameters>]
+    
+    
+DESCRIPTION
+    The `Select-Object` cmdlet selects specified properties of an object or set of objects. It can also select unique objects, a specified number of objects, or objects in a specified position in an array.
+    
+    To select objects from a collection, use the First , Last , Unique , Skip , and Index parameters. To select object properties, use the Property parameter. When you select properties, `Select-Object` returns new objects that have only the specified properties.
+    
+    Beginning in Windows PowerShell 3.0, `Select-Object` includes an optimization feature that prevents commands from creating and processing objects that aren't used.
+    
+When you use `Select-Object` with the First or Index parameters in a command pipeline, PowerShell stops the command that generates the objects as soon as the selected number of objects is reached. To turn off this optimizing behavior, use the Wait parameter.
+    
+
+PARAMETERS
+-CaseInsensitive <System.Management.Automation.SwitchParameter>
+By default, when you use the Unique parameter the cmdlet uses case-sensitive comparisons. When you use this parameter, the cmdlet uses case-insensitive comparisons.
+        
+This parameter was added in PowerShell 7.4.
+        
+Required?                    false
+Position?                    named
+Default value                False
+Accept pipeline input?       False
+Aliases                      none
+Accept wildcard characters?  false
+        
+-ExcludeProperty <System.String[]>
+Specifies the properties that this cmdlet excludes from the operation. Wildcards are permitted.
+        
+Beginning in PowerShell 6, it's no longer required to include the Property parameter for ExcludeProperty to work.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  true
+        
+    -ExpandProperty <System.String>
+        Specifies a property to select, and indicates that an attempt should be made to expand that property. If the input object pipeline doesn't have the property named, `Select-Object` returns an error.
+        
+- If the specified property is an array, each value of the array is included in the output.
+        
+- If the specified property is an object, the objects properties are expanded for every InputObject In either case, the output objects' Type matches the expanded property's Type .
+        
+> [!NOTE] > There is a side-effect when using ExpandProperty . The `Select-Object` adds the selected > properties to the original object as NoteProperty members.
+        
+If the Property parameter is specified, `Select-Object` attempts to add each selected property as a NoteProperty to every outputted object.
+        
+> [!WARNING] > If you receive an error that a property can't be processed because a property with that name > already exists, consider the following. Note that when using ExpandProperty , `Select-Object` > can't replace an existing property. This means: > > - If the expanded object has a property of the same name, the command returns an error. > - If the Selected object has a property of the same name as an Expanded object's property, the >   command returns an error.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -First <System.Int32>
+        Specifies the number of objects to select from the beginning of an array of input objects.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Index <System.Int32[]>
+        Selects objects from an array based on their index values. Enter the indexes in a comma-separated list. Indexes in an array begin with 0, where 0 represents the first value and (n-1) represents the last value.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -InputObject <System.Management.Automation.PSObject>
+        Specifies objects to send to the cmdlet through the pipeline. This parameter enables you to pipe objects to `Select-Object`.
+        
+        When you pass objects to the InputObject parameter, instead of using the pipeline, `Select-Object` treats the InputObject as a single object, even if the value is a collection. It is recommended that you use the pipeline when passing collections to `Select-Object`.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       True (ByValue)
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Last <System.Int32>
+        Specifies the number of objects to select from the end of an array of input objects.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Property <System.Object[]>
+        Specifies the properties to select. These properties are added as NoteProperty members to the output objects. Wildcards are permitted. If the input object doesn't have the property named, the value of the new NoteProperty is set to `$null`.
+        
+The value of the Property parameter can be a new calculated property. To create a calculated, property, use a hash table.
+        
+Valid keys are:
+        
+- Name (or Label) - `<string>`
+        
+- Expression - `<string>` or `<script block>`
+        
+        
+For more information, see about_Calculated_Properties (../Microsoft.PowerShell.Core/About/about_Calculated_Properties.md).
+        
+        
+Required?                    false
+Position?                    0
+Default value                None
+Accept pipeline input?       False
+Aliases                      none
+Accept wildcard characters?  true
+        
+-Skip <System.Int32>
+Skips (doesn't select) the specified number of items. By default, the Skip parameter counts from the beginning of the collection of objects. If the command uses the Last parameter, it counts from the end of the collection.
+        
+        Unlike the Index parameter, which starts counting at 0, the Skip parameter begins at 1.
+        
+        Beginning in PowerShell 7.4, you can use the Skip parameter with the SkipLast parameter to skip items from both the beginning and end of the collection.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -SkipIndex <System.Int32[]>
+        Skips (doesn't select) the objects from an array based on their index values. Enter the indexes in a comma-separated list. Indexes in an array begin with 0, where 0 represents the first value and (n-1) represents the last value.
+        
+This parameter was introduced in Windows PowerShell 6.0.
+        
+Required?                    false
+Position?                    named
+Default value                None
+Accept pipeline input?       False
+Aliases                      none
+Accept wildcard characters?  false
+        
+-SkipLast <System.Int32>
+Skips (doesn't select) the specified number of items from the end of the list or array. Works in the same way as using Skip together with Last parameter.
+        
+        Unlike the Index parameter, which starts counting at 0, the SkipLast parameter begins at 1.
+        
+        Beginning in PowerShell 7.4, you can use the Skip parameter with the SkipLast parameter to skip items from both the beginning and end of the collection.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Unique <System.Management.Automation.SwitchParameter>
+        Specifies that if a subset of the input objects has identical properties and values, only a single member of the subset should be selected. Unique selects values after other filtering parameters are applied.
+        
+        This parameter is case-sensitive. As a result, strings that differ only in character casing are considered to be unique. Add the CaseInsensitive parameter to perform case-insensitive comparisons.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Wait <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet turns off optimization. PowerShell runs commands in the order that they appear in the command pipeline and lets them generate all objects. By default, if you include a `Select-Object` command with the First or Index parameters in a command pipeline, PowerShell stops the command that generates the objects as soon as the selected number of objects is generated.
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+        OutBuffer, PipelineVariable, and OutVariable. For more information, see
+        about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216). 
+    
+INPUTS
+    System.Management.Automation.PSObject
+        You can pipe objects to this cmdlet.
+    
+    
+OUTPUTS
+    System.Management.Automation.PSObject
+        This cmdlet returns the input objects with only the selected properties.
+    
+    
+NOTES
+    
+    
+        PowerShell includes the following aliases for `Select-Object`:
+        
+        - All platforms:   - `select`
+        
+        The optimization feature of `Select-Object` is available only for commands that write objects to the pipeline as they're processed. It has no effect on commands that buffer processed objects and write them as a collection. Writing objects immediately is a cmdlet design best practice. For more information, see Write Single Records to the Pipeline in Strongly Encouraged Development Guidelines (/powershell/scripting/developer/windows-powershell).
+    
+    ------------ Example 1: Select objects by property ------------
+    
+    Get-Process | Select-Object -Property ProcessName, Id, WS
+    
+    
+    - Example 2: Select objects by property and format the results -
+    
+    Get-Process Explorer |
+    Select-Object -Property ProcessName -ExpandProperty Modules |
+    Format-List
+    
+    ProcessName       : explorer
+    ModuleName        : explorer.exe
+    FileName          : C:\WINDOWS\explorer.exe
+    BaseAddress       : 140697278152704
+    ModuleMemorySize  : 3919872
+    EntryPointAddress : 140697278841168
+    FileVersionInfo   : File:             C:\WINDOWS\explorer.exe
+    InternalName:     explorer
+    OriginalFilename: EXPLORER.EXE.MUI
+    FileVersion:      10.0.17134.1 (WinBuild.160101.0800)
+    FileDescription:  Windows Explorer
+    Product:          Microsoft Windows Operating System
+    ProductVersion:   10.0.17134.1
+    ...
+    
+    
+    ------ Example 3: Select processes using the most memory ------
+    
+    Get-Process | Sort-Object -Property WS | Select-Object -Last 5
+    
+    Handles  NPM(K)    PM(K)      WS(K) VS(M)   CPU(s)     Id ProcessName
+    ------ - ------    ---- - ---- - ---- - ------     -- ---------- -
+    2866     320       33432      45764   203   222.41   1292 svchost
+    577      17        23676      50516   265    50.58   4388 WINWORD
+    826      11        75448      76712   188    19.77   3780 Ps
+    1367     14        73152      88736   216    61.69    676 Ps
+    1612     44        66080      92780   380   900.59   6132 INFOPATH
+    
+    
+    ------ Example 4: Select unique characters from an array ------
+    
+    "a", "b", "c", "a", "A", "a" | Select-Object -Unique
+    
+    a
+    b
+    c
+    A
+    
+    
+    ------ - Example 5: Using `-Unique` with other parameters -------
+    
+    "a", "a", "b", "c" | Select-Object -First 2 -Unique
+    
+    a
+    
+    In this example, First selects `"a","a"` as the first 2 items in the array. Unique is applied to `"a", "a"` and returns `a` as the unique value.
+    Example 6: Select unique strings using the `-CaseInsensitive` parameter
+    
+    "aa", "Aa", "Bb", "bb" | Select-Object -Unique -CaseInsensitive
+    
+    aa
+    Bb
+    
+    
+    - Example 7: Select newest and oldest events in the event log -
+    
+    $a = Get-WinEvent -LogName "Windows PowerShell"
+    $a | Select-Object -Index 0, ($a.Count - 1)
+    
+    
+    ---------- Example 8: Select all but the first object ----------
+    
+    New-PSSession -ComputerName (Get-Content Servers.txt | Select-Object -Skip 1)
+    
+    
+    ---- - Example 9: Rename files and select several to review -----
+    
+    Get-ChildItem *.txt -ReadOnly |
+    Rename-Item -NewName { $_.BaseName + "-ro.txt" } -PassThru |
+    Select-Object -First 5 -Wait
+    
+    
+    Example 10: Show the intricacies of the -ExpandProperty parameter
+    
+    # Create a custom object to use for the Select-Object example.
+    $object = [pscustomobject]@{Name = "CustomObject"; Expand = @(1, 2, 3, 4, 5) }
+    # Use the ExpandProperty parameter to Expand the property.
+    $object | Select-Object -ExpandProperty Expand -Property Name
+    
+    1
+    2
+    3
+    4
+    5
+    
+    # The output did not contain the Name property, but it was added successfully.
+    # Use Get-Member to confirm the Name property was added and populated.
+    $object | Select-Object -ExpandProperty Expand -Property Name | Get-Member
+    
+    TypeName: System.Int32
+    
+    Name        MemberType   Definition
+    ----        ----------   ----------
+    CompareTo   Method       int CompareTo(System.Object value), int CompareTo(int value), ...
+    Equals      Method       bool Equals(System.Object obj), bool Equals(int obj), bool IEq...
+    GetHashCode Method       int GetHashCode()
+    GetType     Method       type GetType()
+    GetTypeCode Method       System.TypeCode GetTypeCode(), System.TypeCode IConvertible.Ge...
+    ToBoolean   Method       bool IConvertible.ToBoolean(System.IFormatProvider provider)
+    ToByte      Method       byte IConvertible.ToByte(System.IFormatProvider provider)
+    ToChar      Method       char IConvertible.ToChar(System.IFormatProvider provider)
+    ToDateTime  Method       datetime IConvertible.ToDateTime(System.IFormatProvider provider)
+    ToDecimal   Method       decimal IConvertible.ToDecimal(System.IFormatProvider provider)
+    ToDouble    Method       double IConvertible.ToDouble(System.IFormatProvider provider)
+    ToInt16     Method       int16 IConvertible.ToInt16(System.IFormatProvider provider)
+    ToInt32     Method       int IConvertible.ToInt32(System.IFormatProvider provider)
+    ToInt64     Method       long IConvertible.ToInt64(System.IFormatProvider provider)
+    ToSByte     Method       sbyte IConvertible.ToSByte(System.IFormatProvider provider)
+    ToSingle    Method       float IConvertible.ToSingle(System.IFormatProvider provider)
+    ToString    Method       string ToString(), string ToString(string format), string ToS...
+    ToType      Method       System.Object IConvertible.ToType(type conversionType, System...
+        ToUInt16    Method       uint16 IConvertible.ToUInt16(System.IFormatProvider provider)
+        ToUInt32    Method       uint32 IConvertible.ToUInt32(System.IFormatProvider provider)
+        ToUInt64    Method       uint64 IConvertible.ToUInt64(System.IFormatProvider provider)
+        Name        NoteProperty string Name=CustomObject
+    
+    
+        ------ - Example 11: Create custom properties on objects -------
+    
+        $customObject = 1 | Select-Object -Property MyCustomProperty
+        $customObject.MyCustomProperty = "New Custom Property"
+        $customObject
+    
+        MyCustomProperty
+        ----------------
+        New Custom Property
+    
+    
+        Example 12: Create calculated properties for each InputObject
+    
+        # Create a calculated property called $_.StartTime.DayOfWeek
+        Get-Process | Select-Object -Property ProcessName, { $_.StartTime.DayOfWeek }
+    
+        ProcessName  $_.StartTime.DayOfWeek
+        ----         ----------------------
+        alg                       Wednesday
+        ati2evxx                  Wednesday
+        ati2evxx                   Thursday
+        ...
+    
+        # Add a custom property to calculate the size in KiloBytes of each FileInfo
+        # object you pass in. Use the pipeline variable to divide each file's length by
+        # 1 KiloBytes
+        $size = @{Label = "Size(KB)"; Expression = { $_.Length / 1KB } }
+        # Create an additional calculated property with the number of Days since the
+        # file was last accessed. You can also shorten the key names to be 'l', and 'e',
+        # or use Name instead of Label.
+        $days = @{l = "Days"; e = { ((Get-Date) - $_.LastAccessTime).Days } }
+        # You can also shorten the name of your label key to 'l' and your expression key
+        # to 'e'.
+        Get-ChildItem $PSHOME -File | Select-Object Name, $size, $days
+    
+        Name                        Size(KB)        Days
+        ----                        --------        ----
+        Certificate.format.ps1xml   12.5244140625   223
+        Diagnostics.Format.ps1xml   4.955078125     223
+        DotNetTypes.format.ps1xml   134.9833984375  223
+    
+    
+        Example 13: Select hashtable keys without using calculated properties
+    
+        @{ name = 'a' ; weight = 7 } | Select-Object -Property name, weight
+    
+        name weight
+        ---- ------
+        a         7
+    
+    
+        ---- Example 14: ExpandProperty alters the original object ----
+    
+        PS> $object = [pscustomobject]@ {
+            name = 'USA'
+            children = [pscustomobject]@ {
+                name = 'Southwest'
+            }
+        }
+        PS> $object
+    
+        name children
+        ---- --------
+        USA  @{name = Southwest }
+    
+        # Use the ExpandProperty parameter to expand the children property
+        PS> $object | Select-Object @{n = "country"; e = { $_.name } } -ExpandProperty children
+    
+        name      country
+        ----      ------ -
+        Southwest USA
+    
+        # The original object has been altered
+        PS> $object
+    
+        name children
+        ---- --------
+        USA  @{name = Southwest; country = USA }
+    
+        As you can see, the country property was added to the children object after using the ExpandProperty parameter.
+        Example 15: Create a new object with expanded properties without altering the input object
+    
+        PS> $object = [pscustomobject]@ {
+            name = 'USA'
+            children = [pscustomobject]@ {
+                name = 'Southwest'
+            }
+        }
+        PS> $object
+    
+        name children
+        ---- --------
+        USA  @{name = Southwest }
+    
+        # Create a new object with selected properties
+        PS> $newObject = [pscustomobject]@ {
+            country = $object.name
+            children = $object.children
+        }
+    
+        PS> $newObject
+    
+        country children
+        ------ - --------
+        USA     @{name = Southwest }
+    
+        # $object remains unchanged
+        PS> $object
+    
+        name children
+        ---- --------
+        USA  @{name = Southwest }
+    
+    
+    
+        RELATED LINKS
+        Online Version: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/select-object?view=powershell-7.5&WT.mc_id=ps-gethelp
+        about_Calculated_Properties 
+        Group-Object 
+        Sort-Object 
+        Where-Object 
+
+
+
+        NAME
+        Where-Object
+    
+        SYNOPSIS
+        Selects objects from a collection based on their property values.
+    
+    
+        SYNTAX
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CContains [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CEQ [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CGE [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CGT [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CIn [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CLE [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CLike [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CLT [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CMatch [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CNE [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CNotContains [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CNotIn [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CNotLike [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -CNotMatch [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -Contains [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-EQ] [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-FilterScript] <System.Management.Automation.ScriptBlock> [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -GE [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -GT [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] -In [-InputObject <System.Management.Automation.PSObject>] [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-InputObject <System.Management.Automation.PSObject>] -Is [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-InputObject <System.Management.Automation.PSObject>] -IsNot [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-InputObject <System.Management.Automation.PSObject>] -LE [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-InputObject <System.Management.Automation.PSObject>] -Like [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-InputObject <System.Management.Automation.PSObject>] -LT [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-InputObject <System.Management.Automation.PSObject>] -Match [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-InputObject <System.Management.Automation.PSObject>] -NE [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [-InputObject <System.Management.Automation.PSObject>] -Not [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-InputObject <System.Management.Automation.PSObject>] -NotContains [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-InputObject <System.Management.Automation.PSObject>] -NotIn [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-InputObject <System.Management.Automation.PSObject>] -NotLike [<CommonParameters>]
+    
+        Where-Object [-Property] <System.String> [[-Value] <System.Management.Automation.PSObject>] [-InputObject <System.Management.Automation.PSObject>] -NotMatch [<CommonParameters>]
+    
+    
+        DESCRIPTION
+        The `Where-Object` cmdlet selects objects that have particular property values from the collection of objects that are passed to it. For example, you can use the `Where-Object` cmdlet to select files that were created after a certain date, events with a particular ID, or computers that use a particular version of Windows.
+    
+        Starting in Windows PowerShell 3.0, there are two different ways to construct a `Where-Object` command.
+    
+        - Script block . You can use a script block to specify the property name, a comparison operator, and a property value. `Where-Object` returns all objects for which the script block statement is   true.
+    
+        For example, the following command gets processes in the `Normal` priority class, that is, processes where the value of the PriorityClass property equals `Normal`.
+    
+        `Get-Process | Where-Object { $_.PriorityClass -eq "Normal" }`
+    
+        All PowerShell comparison operators are valid in the script block format. For more information, see about_Comparison_Operators (About/about_Comparison_Operators.md).
+    
+        - Comparison statement . You can also write a comparison statement, which is much more like   natural language. Comparison statements were introduced in Windows PowerShell 3.0.
+    
+        For example, the following commands also get processes that have a priority class of `Normal`.   These commands are equivalent and you can use them interchangeably.
+    
+        `Get-Process | Where-Object -Property PriorityClass -EQ -Value "Normal"`
+    
+        `Get-Process | Where-Object PriorityClass -EQ "Normal"`
+    
+        Starting in Windows PowerShell 3.0, `Where-Object` adds comparison operators as parameters in a   `Where-Object` command. Unless specified, all operators are case-insensitive. Before Windows   PowerShell 3.0, the comparison operators in the PowerShell language were only usable in script   blocks.
+    
+        When you provide a single Property to `Where-Object`, the cmdlet treats the value of the property as a boolean expression. When the value of the property's Length isn't zero, the expression evaluates to `$true`. For example: `('hi', '', 'there') | Where-Object Length`
+    
+    The previous example is functionally equivalent to:
+    
+    - `('hi', '', 'there') | Where-Object Length -GT 0`
+    
+- `('hi', '', 'there') | Where-Object { $_.Length -gt 0 }`
+    
+    
+For more information about how PowerShell evaluates booleans, see about_Booleans (About/about_Booleans.md).
+    
+    
+
+PARAMETERS
+-CContains <System.Management.Automation.SwitchParameter>
+Indicates that this cmdlet gets objects from a collection if the property value of the object is an exact match for the specified value. This operation is case-sensitive.
+        
+For example: `Get-Process | Where-Object ProcessName -CContains "svchost"` CContains refers to a collection of values and is true if the collection contains an item that is an exact match for the specified value. If the input is a single object, PowerShell converts it to a collection of one object.
+        
+This parameter was introduced in Windows PowerShell 3.0.
+        
+Required?                    true
+Position?                    named
+Default value                False
+Accept pipeline input?       False
+Aliases                      none
+Accept wildcard characters?  false
+        
+-CEQ <System.Management.Automation.SwitchParameter>
+Indicates that this cmdlet gets objects if the property value is the same as the specified value. This operation is case-sensitive.
+        
+This parameter was introduced in Windows PowerShell 3.0.
+        
+Required?                    true
+Position?                    named
+Default value                False
+Accept pipeline input?       False
+Aliases                      none
+Accept wildcard characters?  false
+        
+-CGE <System.Management.Automation.SwitchParameter>
+Indicates that this cmdlet gets objects if the property value is greater than or equal to the specified value. This operation is case-sensitive.
+        
+This parameter was introduced in Windows PowerShell 3.0.
+        
+Required?                    true
+Position?                    named
+Default value                False
+Accept pipeline input?       False
+Aliases                      none
+Accept wildcard characters?  false
+        
+-CGT <System.Management.Automation.SwitchParameter>
+Indicates that this cmdlet gets objects if the property value is greater than the specified value. This operation is case-sensitive.
+        
+This parameter was introduced in Windows PowerShell 3.0.
+        
+Required?                    true
+Position?                    named
+Default value                False
+Accept pipeline input?       False
+Aliases                      none
+Accept wildcard characters?  false
+        
+-CIn <System.Management.Automation.SwitchParameter>
+Indicates that this cmdlet gets objects if the property value includes the specified value. This operation is case-sensitive.
+        
+For example: `Get-Process | Where-Object -Value "svchost" -CIn ProcessName` CIn resembles CContains , except that the property and value positions are reversed. For example, the following statements are both true.
+        
+`"abc", "def" -CContains "abc"`
+        
+        `"abc" -CIn "abc", "def"`
+        
+This parameter was introduced in Windows PowerShell 3.0.
+        
+Required?                    true
+Position?                    named
+Default value                False
+Accept pipeline input?       False
+Aliases                      none
+Accept wildcard characters?  false
+        
+-CLE <System.Management.Automation.SwitchParameter>
+Indicates that this cmdlet gets objects if the property value is less-than or equal to the specified value. This operation is case-sensitive.
+        
+This parameter was introduced in Windows PowerShell 3.0.
+        
+Required?                    true
+Position?                    named
+Default value                False
+Accept pipeline input?       False
+Aliases                      none
+Accept wildcard characters?  false
+        
+-CLike <System.Management.Automation.SwitchParameter>
+Indicates that this cmdlet gets objects if the property value matches a value that includes wildcard characters (`*`). This operation is case-sensitive.
+        
+    For example: `Get-Process | Where-Object ProcessName -CLike "*host"`
+        
+    This parameter was introduced in Windows PowerShell 3.0.
+        
+    Required?                    true
+    Position?                    named
+    Default value                False
+    Accept pipeline input?       False
+    Aliases                      none
+    Accept wildcard characters?  false
+        
+    -CLT <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if the property value is less-than the specified value. This operation is case-sensitive.
+        
+    This parameter was introduced in Windows PowerShell 3.0.
+        
+    Required?                    true
+    Position?                    named
+    Default value                False
+    Accept pipeline input?       False
+    Aliases                      none
+    Accept wildcard characters?  false
+        
+    -CMatch <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if the property value matches the specified regular expression. This operation is case-sensitive. When the input is a single object, the matched value is saved in the `$Matches` automatic variable.
+        
+    For example: `Get-Process | Where-Object ProcessName -CMatch "Shell"`
+        
+    This parameter was introduced in Windows PowerShell 3.0.
+        
+    Required?                    true
+    Position?                    named
+    Default value                False
+    Accept pipeline input?       False
+    Aliases                      none
+    Accept wildcard characters?  false
+        
+    -CNE <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if the property value is different than the specified value. This operation is case-sensitive.
+        
+    This parameter was introduced in Windows PowerShell 3.0.
+        
+    Required?                    true
+    Position?                    named
+    Default value                False
+    Accept pipeline input?       False
+    Aliases                      none
+    Accept wildcard characters?  false
+        
+    -CNotContains <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if the property value of the object isn't an exact match for the specified value. This operation is case-sensitive.
+        
+        For example: `Get-Process | Where-Object ProcessName -CNotContains "svchost"` NotContains and CNotContains refer to a collection of values and are true when the collection doesn't contain any items that are an exact match for the specified value. If the input is a single object, PowerShell converts it to a collection of one object.
+        
+    This parameter was introduced in Windows PowerShell 3.0.
+        
+    Required?                    true
+    Position?                    named
+    Default value                False
+    Accept pipeline input?       False
+    Aliases                      none
+    Accept wildcard characters?  false
+        
+    -CNotIn <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if the property value isn't an exact match for the specified value. This operation is case-sensitive.
+        
+        For example: `Get-Process | Where-Object -Value "svchost" -CNotIn -Property ProcessName` NotIn and CNotIn operators resemble NotContains and CNotContains , except that the property and value positions are reversed. For example, the following statements are true.
+        
+        `"abc", "def" -CNotContains "Abc"`
+        
+        `"abc" -CNotIn "Abc", "def"`
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -CNotLike <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects if the property value doesn't match a value that includes wildcard characters. This operation is case-sensitive.
+        
+    For example: `Get-Process | Where-Object ProcessName -CNotLike "*host"`
+        
+    This parameter was introduced in Windows PowerShell 3.0.
+        
+    Required?                    true
+    Position?                    named
+    Default value                False
+    Accept pipeline input?       False
+    Aliases                      none
+    Accept wildcard characters?  false
+        
+    -CNotMatch <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if the property value doesn't match the specified regular expression. This operation is case-sensitive. When the input is a single object, the matched value is saved in the `$Matches` automatic variable.
+        
+        For example: `Get-Process | Where-Object ProcessName -CNotMatch "Shell"`
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Contains <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects if any item in the property value of the object is an exact match for the specified value.
+        
+        For example: `Get-Process | Where-Object ProcessName -Contains "Svchost"`
+        
+        If the input is a single object, PowerShell converts it to a collection of one object.
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      IContains
+        Accept wildcard characters?  false
+        
+    -EQ <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects if the property value is the same as the specified value.
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      IEQ
+        Accept wildcard characters?  false
+        
+    -FilterScript <System.Management.Automation.ScriptBlock>
+        Specifies the script block that's used to filter the objects. Enclose the script block in braces (`{ }`).
+        
+    The parameter name, FilterScript , is optional.
+        
+    Required?                    true
+    Position?                    0
+    Default value                None
+    Accept pipeline input?       False
+    Aliases                      none
+    Accept wildcard characters?  false
+        
+    -GE <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if the property value is greater than or equal to the specified value.
+        
+    This parameter was introduced in Windows PowerShell 3.0.
+        
+    Required?                    true
+    Position?                    named
+    Default value                False
+    Accept pipeline input?       False
+    Aliases                      IGE
+    Accept wildcard characters?  false
+        
+    -GT <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if the property value is greater than the specified value.
+        
+    This parameter was introduced in Windows PowerShell 3.0.
+        
+    Required?                    true
+    Position?                    named
+    Default value                False
+    Accept pipeline input?       False
+    Aliases                      IGT
+    Accept wildcard characters?  false
+        
+    -In <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if the property value matches any of the specified values. For example:
+        
+    `Get-Process | Where-Object -Property ProcessName -In -Value "Svchost", "TaskHost", "WsmProvHost"`
+        
+    If the input is a single object, PowerShell converts it to a collection of one object.
+        
+    If the property value of an object is an array, PowerShell uses reference equality to determine a match. `Where-Object` returns the object only if the value of the Property parameter and any value of Value are the same instance of an object.
+        
+    This parameter was introduced in Windows PowerShell 3.0.
+        
+    Required?                    true
+    Position?                    named
+    Default value                False
+    Accept pipeline input?       False
+    Aliases                      IIn
+    Accept wildcard characters?  false
+        
+    -InputObject <System.Management.Automation.PSObject>
+    Specifies the objects to filter. You can also pipe the objects to `Where-Object`.
+        
+    When you use the InputObject parameter with `Where-Object`, instead of piping command results to `Where-Object`, the cmdlet treats the InputObject as a single object. This is true even if the value is a collection that's the result of a command, such as `-InputObject (Get-Process)`.
+        
+        Because InputObject can't return individual properties from an array or collection of objects, we recommend that, if you use `Where-Object` to filter a collection of objects for those objects that have specific values in defined properties, you use `Where-Object` in the pipeline, as shown in the examples in this topic.
+        
+    Required?                    false
+    Position?                    named
+    Default value                None
+    Accept pipeline input?       True (ByValue)
+    Aliases                      none
+    Accept wildcard characters?  false
+        
+    -Is <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if the property value is an instance of the specified .NET type. Enclose the type name in square brackets.
+        
+    For example, `Get-Process | Where-Object StartTime -Is [datetime]`
+        
+    This parameter was introduced in Windows PowerShell 3.0.
+        
+    Required?                    true
+    Position?                    named
+    Default value                False
+    Accept pipeline input?       False
+    Aliases                      none
+    Accept wildcard characters?  false
+        
+    -IsNot <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if the property value isn't an instance of the specified .NET type.
+        
+        For example, `Get-Process | where StartTime -IsNot [datetime]`
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -LE <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects if the property value is less than or equal to the specified value.
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      ILE
+        Accept wildcard characters?  false
+        
+    -Like <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects if the property value matches a value that includes wildcard characters (`*`).
+        
+        For example: `Get-Process | Where-Object ProcessName -Like "*host"`
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      ILike
+        Accept wildcard characters?  false
+        
+    -LT <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects if the property value is less than the specified value.
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      ILT
+        Accept wildcard characters?  false
+        
+    -Match <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects if the property value matches the specified regular expression. When the input is a single object, the matched value is saved in the `$Matches` automatic variable.
+        
+        For example: `Get-Process | Where-Object ProcessName -Match "shell"`
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      IMatch
+        Accept wildcard characters?  false
+        
+    -NE <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects if the property value is different than the specified value.
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      INE
+        Accept wildcard characters?  false
+        
+    -Not <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects if the property doesn't exist or has a value of `$null` or `$false`.
+        
+    For example: `Get-Service | Where-Object -Not "DependentServices"`
+        
+    This parameter was introduced in Windows PowerShell 6.1.
+        
+    Required?                    true
+    Position?                    named
+    Default value                False
+    Accept pipeline input?       False
+    Aliases                      none
+    Accept wildcard characters?  false
+        
+    -NotContains <System.Management.Automation.SwitchParameter>
+    Indicates that this cmdlet gets objects if none of the items in the property value is an exact match for the specified value.
+        
+    For example: `Get-Process | Where-Object ProcessName -NotContains "Svchost"` NotContains refers to a collection of values and is true if the collection doesn't contain any items that are an exact match for the specified value. If the input is a single object, PowerShell converts it to a collection of one object.
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      INotContains
+        Accept wildcard characters?  false
+        
+    -NotIn <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects if the property value isn't an exact match for any of the specified values.
+        
+    For example: `Get-Process | Where-Object -Value "svchost" -NotIn -Property ProcessName`
+        
+    If the value of Value is a single object, PowerShell converts it to a collection of one object.
+        
+    If the property value of an object is an array, PowerShell uses reference equality to determine a match. `Where-Object` returns the object only if the value of Property and any value of Value aren't the same instance of an object.
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      INotIn
+        Accept wildcard characters?  false
+        
+    -NotLike <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects if the property value doesn't match a value that includes wildcard characters (`*`).
+        
+        For example: `Get-Process | Where-Object ProcessName -NotLike "*host"`
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      INotLike
+        Accept wildcard characters?  false
+        
+        -NotMatch <System.Management.Automation.SwitchParameter>
+        Indicates that this cmdlet gets objects when the property value doesn't match the specified regular expression. When the input is a single object, the matched value is saved in the `$Matches` automatic variable.
+        
+        For example: `Get-Process | Where-Object ProcessName -NotMatch "powershell"`
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      INotMatch
+        Accept wildcard characters?  false
+        
+    -Property <System.String>
+        Specifies the name of a property of the input object. The property must be an instance property, not a static property. This is a positional parameter, so the name, Property , is optional.
+        
+        This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    true
+        Position?                    0
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Value <System.Management.Automation.PSObject>
+        Specifies a property value. The parameter name, Value , is optional. This parameter accepts wildcard characters when used with the following comparison parameters:
+        
+        - CLike - CNotLike - Like - NotLike This parameter was introduced in Windows PowerShell 3.0.
+        
+        Required?                    false
+        Position?                    1
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  true
+        
+    <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+        OutBuffer, PipelineVariable, and OutVariable. For more information, see
+        about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216). 
+    
+INPUTS
+    System.Management.Automation.PSObject
+        You can pipe any object to this cmdlet.
+    
+    
+OUTPUTS
+    System.Object
+        This cmdlet returns the selected items from the input object set.
+    
+    
+NOTES
+    
+    
+        PowerShell includes the following aliases for `Where-Object`:
+        
+        - All Platforms:   - `?`   - `where`
+        
+        Starting in Windows PowerShell 4.0, `Where` and `ForEach` methods were added for use with collections.
+        
+        You can read more about these methods here about_Arrays (About/about_Arrays.md)
+    
+    --------------- Example 1: Get stopped services ---------------
+    
+    Get-Service | Where-Object { $_.Status -eq "Stopped" }
+    Get-Service | Where-Object Status -EQ "Stopped"
+    
+    
+    -------- Example 2: Get processes based on working set --------
+    
+    Get-Process | Where-Object { $_.WorkingSet -gt 250MB }
+    Get-Process | Where-Object WorkingSet -GT 250MB
+    
+    
+    -------- Example 3: Get processes based on process name --------
+    
+    Get-Process | Where-Object { $_.ProcessName -match "^p.*" }
+    Get-Process | Where-Object ProcessName -Match "^p.*"
+    
+    
+    -------- Example 4: Use the comparison statement format --------
+    
+    Get-Process | Where-Object -Property Handles -GE -Value 1000
+    Get-Process | where Handles -GE 1000
+    
+    
+    --------- Example 5: Get commands based on properties ---------
+    
+    # Use Where-Object to get commands that have any value for the OutputType
+    # property of the command. This omits commands that do not have an OutputType
+    # property and those that have an OutputType property, but no property value.
+    Get-Command | Where-Object OutputType
+    Get-Command | Where-Object { $_.OutputType }
+    
+    # Use Where-Object to get objects that are containers. This gets objects that
+    # have the **PSIsContainer** property with a value of $true and excludes all
+    # others.
+    Get-ChildItem | Where-Object PSIsContainer
+    Get-ChildItem | Where-Object { $_.PSIsContainer }
+    
+    # Finally, use the -not operator (!) to get objects that are not containers.
+    # This gets objects that do have the **PSIsContainer** property and those
+    # that have a value of $false for the **PSIsContainer** property.
+    Get-ChildItem | Where-Object -Not PSIsContainer
+    Get-ChildItem | Where-Object { !$_.PSIsContainer }
+    
+    
+    -------------- Example 6: Use multiple conditions --------------
+    
+    Get-Module -ListAvailable | Where-Object {
+        ($_.Name -notlike "Microsoft*" -and $_.Name -notlike "PS*") -and $_.HelpInfoUri
+    }
+    
+    This example shows how to create a `Where-Object` command with multiple conditions.
+    
+    This command gets non-core modules that support the Updatable Help feature. The command uses the ListAvailable parameter of the `Get-Module` cmdlet to get all modules on the computer. A pipeline operator (`|`) sends the modules to the `Where-Object` cmdlet, which gets modules whose names don't begin with `Microsoft` or `PS`, and have a value for the HelpInfoURI property, which tells PowerShell where to find updated help files for the module. The `-and` logical operator connects the comparison statements.
+    
+        The example uses the script block command format. Logical operators, such as `-and`,`-or`, and `-not` are valid only in script blocks. You can't use them in the comparison statement format of a `Where-Object` command.
+    
+    - For more information about PowerShell logical operators, see about_Logical_Operators (About/about_Logical_Operators.md). - For more information about the Updatable Help feature, see about_Updatable_Help (About/about_Updatable_Help.md).
+    
+RELATED LINKS
+    Online Version: https://learn.microsoft.com/powershell/module/microsoft.powershell.core/where-object?view=powershell-7.5&WT.mc_id=ps-gethelp
+    Compare-Object 
+    ForEach-Object 
+    Group-Object 
+    Measure-Object 
+    New-Object 
+    Select-Object 
+    Sort-Object 
+    Tee-Object 
+    about_Booleans 
+
+
+
+
+NAME
+    Sort-Object
+    
+SYNOPSIS
+    Sorts objects by property values.
+    
+    
+SYNTAX
+    Sort-Object [[-Property] <System.Object[]>] -Bottom <System.Int32> [-CaseSensitive] [-Culture <System.String>] [-Descending] [-InputObject <System.Management.Automation.PSObject>] [-Unique] [<CommonParameters>]
+    
+    Sort-Object [[-Property] <System.Object[]>] [-CaseSensitive] [-Culture <System.String>] [-Descending] [-InputObject <System.Management.Automation.PSObject>] [-Stable] [-Unique] [<CommonParameters>]
+    
+    Sort-Object [[-Property] <System.Object[]>] [-CaseSensitive] [-Culture <System.String>] [-Descending] [-InputObject <System.Management.Automation.PSObject>] -Top <System.Int32> [-Unique] [<CommonParameters>]
+    
+    
+DESCRIPTION
+    The `Sort-Object` cmdlet sorts objects in ascending or descending order based on object property values. If sort properties aren't included in a command, PowerShell uses default sort properties of the first input object. If the input object's type has no default sort properties, PowerShell attempts to compare the objects themselves. For more information, see the Notes (#notes)section.
+    
+    You can sort objects by a single property or multiple properties. Multiple properties use hash tables to sort in ascending order, descending order, or a combination of sort orders. Properties are sorted as case-sensitive or case-insensitive. Use the Unique parameter to remove duplicates from the output.
+    
+
+PARAMETERS
+    -Bottom <System.Int32>
+        Specifies the number of objects to get from the end of a sorted object array. This results in a stable sort.
+        
+        This parameter was introduced in PowerShell 6.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -CaseSensitive <System.Management.Automation.SwitchParameter>
+        Indicates that the sort is case-sensitive. By default, sorts aren't case-sensitive.
+        
+        Required?                    false
+        Position?                    named
+        Default value                Case-insensitive
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+        -Culture <System.String>
+        Specifies the cultural configuration to use for sorts. Use `Get-Culture` to display the system's culture configuration.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Descending <System.Management.Automation.SwitchParameter>
+        Indicates that `Sort-Object` sorts the objects in descending order. The default is ascending order.
+        
+        To sort multiple properties with different sort orders, use a hash table. For example, with a hash table you can sort one property in ascending order and another property in descending order.
+        
+        Required?                    false
+        Position?                    named
+        Default value                Ascending
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -InputObject <System.Management.Automation.PSObject>
+        To sort objects, send them down the pipeline to `Sort-Object`. If you use the InputObject parameter to submit a collection of items, `Sort-Object` receives one object that represents the collection. Because one object can't be sorted, `Sort-Object` returns the entire collection unchanged.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       True (ByValue)
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+        -Property <System.Object[]>
+        Specifies the property names that `Sort-Object` uses to sort the objects. Wildcards are permitted. Objects are sorted based on the property values. If you don't specify a property, `Sort-Object` sorts based on default properties for the object type or the objects themselves.
+        
+        Use commas to separate multiple properties. Multiple properties can be sorted in ascending order, descending order, or a combination of sort orders. When you specify multiple properties, the objects are sorted by the first property. If multiple objects have the same value for the first property, those objects are sorted by the second property. This process continues until there are no more specified properties or no groups of objects.
+        
+        The Property parameter's value can be a calculated property. To create a calculated property, use a scriptblock or a hashtable.
+        
+        Valid keys for a hash table are as follows:
+        
+        - `Expression` - `<string>` or `<script block>`
+        
+        - `Ascending` or `Descending` - `<boolean>`
+        
+        
+        For more information, see about_Calculated_Properties (../Microsoft.PowerShell.Core/About/about_Calculated_Properties.md).
+        
+        
+        Required?                    false
+        Position?                    0
+        Default value                Default properties
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  true
+        
+        -Stable <System.Management.Automation.SwitchParameter>
+        The sorted objects are delivered in the order they were received when the sort criteria are equal.
+        
+        This parameter was added in PowerShell v6.2.0.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+        -Top <System.Int32>
+        Specifies the number of objects to get from the start of a sorted object array. This results in a stable sort.
+        
+        This parameter was introduced in PowerShell 6.0.
+        
+        Required?                    true
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+        -Unique <System.Management.Automation.SwitchParameter>
+        Indicates that `Sort-Object` eliminates duplicates and returns only the unique members of the collection. The first instance of a unique value is included in the sorted output. Unique is case-insensitive. Strings that only differ by character case are considered the same. For example, character and CHARACTER.
+        
+        Required?                    false
+        Position?                    named
+        Default value                All
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+        <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+        OutBuffer, PipelineVariable, and OutVariable. For more information, see
+        about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216). 
+    
+        INPUTS
+        System.Management.Automation.PSObject
+        You can pipe the objects to be sorted to this cmdlet.
+    
+    
+        OUTPUTS
+        System.Management.Automation.PSObject
+        This cmdlet returns the sorted objects.
+    
+    
+        NOTES
+    
+    
+        PowerShell includes the following aliases for `Sort-Object`:
+        
+        - Windows:   - `sort`
+        
+        The `Sort-Object` cmdlet sorts objects based on properties specified in the command or the default sort properties for the object type. Default sort properties are defined using the `PropertySet` named `DefaultKeyPropertySet` in a `types.ps1xml` file. For more information, see about_Types.ps1xml (/powershell/module/Microsoft.PowerShell.Core/About/about_Types.ps1xml).
+        
+        If an object doesn't have one of the specified properties, the property value for that object is interpreted by `Sort-Object` as Null and placed at the end of the sort order.
+        
+        When no sort properties are available, PowerShell attempts to compare the objects themselves. `Sort-Object` uses the Compare method for each property. If a property doesn't implement IComparable , the cmdlet converts the property value to a string and uses the Compare method for System.String . For more information, see PSObject.CompareTo(Object) Method (/dotnet/api/system.management.automation.psobject.compareto).
+        
+        If you sort on an enumerated property such as Status , `Sort-Object` sorts by the enumeration values. For Windows services, Stopped has a value of 1 and Running has a value of 4 . Stopped is sorted before Running because of the enumerated values. For more information, see ServiceControllerStatus (/dotnet/api/system.serviceprocess.servicecontrollerstatus).
+        
+        The performance of the sorting algorithm is slower when doing a stable sort.
+    
+        -------- Example 1: Sort the current directory by name --------
+    
+        Get-ChildItem -Path C:\Test | Sort-Object
+    
+        Directory: C:\Test
+    
+        Mode                LastWriteTime         Length Name
+        ----                ------------ - ------ ----
+        -a----        2 / 13 / 2019     08:55             26 anotherfile.txt
+        -a----        2/13/2019     13:26             20 Bfile.txt
+        -a----        2/12/2019     15:40         118014 Command.txt
+        -a----         2/1/2019     08:43            183 CreateTestFile.ps1
+        d-----        2/25/2019     18:25                Files
+        d-----        2/25/2019     18:24                Logs
+        -ar---        2/12/2019     14:31             27 ReadOnlyFile.txt
+        -a----        2/12/2019     16:24             23 Zsystemlog.log
+    
+        The `Get-ChildItem` cmdlet gets the files and subdirectories from the directory specified by the Path parameter, `C:\Test`. The objects are sent down the pipeline to the `Sort-Object` cmdlet. `Sort-Object` doesn't specify a property so the output is sorted by the default sort property, Name .
+    ----- Example 2: Sort the current directory by file length -----
+    
+    Get-ChildItem -Path C:\Test -File | Sort-Object -Property Length
+    
+    Directory: C:\Test
+    
+    Mode                LastWriteTime         Length Name
+    ----                -------------         ------ ----
+    -a----        2/13/2019     13:26             20 Bfile.txt
+    -a----        2/12/2019     16:24             23 Zsystemlog.log
+    -a----        2/13/2019     08:55             26 anotherfile.txt
+    -ar---        2/12/2019     14:31             27 ReadOnlyFile.txt
+    -a----         2/1/2019     08:43            183 CreateTestFile.ps1
+    -a----        2/12/2019     15:40         118014 Command.txt
+    
+    The `Get-ChildItem` cmdlet gets the files from the directory specified by the Path parameter. The File parameter specifies that `Get-ChildItem` only gets file objects. The objects are sent down the pipeline to the `Sort-Object` cmdlet. `Sort-Object` uses the Length parameter to sort the files by length in ascending order.
+    ---------- Example 3: Sort processes by memory usage ----------
+    
+    Get-Process | Sort-Object -Property WS | Select-Object -Last 5
+    
+    NPM(K)    PM(M)      WS(M)     CPU(s)      Id  SI ProcessName
+     ------    -----      -----     ------      --  -- -----------
+        136   193.92     217.11     889.16   87492   8 OUTLOOK
+        112   347.73     297.02      95.19  106908   8 Teams
+        206   266.54     323.71      37.17   60620   8 MicrosoftEdgeCP
+         35   552.19     549.94     131.66    6552   8 Code
+          0     1.43     595.12       0.00    2780   0 Memory Compression
+    
+    The `Get-Process` cmdlet gets the list of processes running on the computer. The process objects are sent down the pipeline to the `Sort-Object` cmdlet. `Sort-Object` uses the Property parameter to sort the objects by WS . The objects are sent down the pipeline to the `Select-Object` cmdlet. `Select-Object` uses the Last parameter to specify the last five objects, which are the objects with the highest WS usage.
+    
+    In PowerShell 6, the `Sort-Object` parameter Bottom is an alternative to `Select-Object`. For example, `Get-Process | Sort-Object -Property WS -Bottom 5`.
+    ---------- Example 4: Sort HistoryInfo objects by Id ----------
+    
+    Get-History | Sort-Object -Property Id -Descending
+    
+    Id CommandLine
+      -- -----------
+      10 Get-Command Sort-Object -Syntax
+       9 $PSVersionTable
+       8 Get-Command Sort-Object -Syntax
+       7 Get-Command Sort-Object -ShowCommandInfo
+       6 Get-ChildItem -Path C:\Test | Sort-Object -Property Length
+       5 Get-Help Clear-History -Online
+       4 Get-Help Clear-History -Full
+       3 Get-ChildItem | Get-Member
+       2 Get-Command Sort-Object -Syntax
+       1 Set-Location C:\Test\
+    
+    The `Get-History` cmdlet gets the history objects from the current PowerShell session. The objects are sent down the pipeline to the `Sort-Object` cmdlet. `Sort-Object` uses the Property parameter to sort the objects by Id . The Descending parameter sorts the command history from newest to oldest.
+    Example 5: Use a hash table to sort properties in ascending and descending order
+    
+    Get-Service |
+        Sort-Object -Property @{Expression = "Status"; Descending = $true},
+                              @{Expression = "DisplayName"; Descending = $false}
+    
+    Status   Name               DisplayName
+    ------   ----               -----------
+    Running  Appinfo            Application Information
+    Running  BthAvctpSvc        AVCTP service
+    Running  BrokerInfrastru... Background Tasks Infrastructure Ser...
+    Running  BDESVC             BitLocker Drive Encryption Service
+    Running  CoreMessagingRe... CoreMessaging
+    Running  VaultSvc           Credential Manager
+    Running  DsSvc              Data Sharing Service
+    Running  Dhcp               DHCP Client
+    ...
+    Stopped  ALG                Application Layer Gateway Service
+    Stopped  AppMgmt            Application Management
+    Stopped  BITS               Background Intelligent Transfer Ser...
+    Stopped  wbengine           Block Level Backup Engine Service
+    Stopped  BluetoothUserSe... Bluetooth User Support Service_14fb...
+    Stopped  COMSysApp          COM+ System Application
+    Stopped  smstsmgr           ConfigMgr Task Sequence Agent
+    Stopped  DeviceInstall      Device Install Service
+    Stopped  MSDTC              Distributed Transaction Coordinator
+    
+    The `Get-Service` cmdlet gets the list of services on the computer. The service objects are sent down the pipeline to the `Sort-Object` cmdlet. `Sort-Object` uses the Property parameter with a hash table to specify the property names and sort orders. The Property parameter is sorted by two properties, Status in descending order and DisplayName in ascending order. Status is an enumerated property. Stopped has a value of 1 and Running has a value of 4 . The Descending parameter is set to `$true` so that Running processes are displayed before Stopped processes. DisplayName sets the Descending parameter to `$false` to sort the display names in alphabetical order.
+    ----------- Example 6: Sort text files by time span -----------
+    
+    Get-ChildItem -Path C:\Test\*.txt |
+        Sort-Object -Property {$_.CreationTime - $_.LastWriteTime} |
+        Format-Table CreationTime, LastWriteTime, FullName
+    
+    CreationTime          LastWriteTime        FullName
+    ------------          -------------        --------
+    11/21/2018 12:39:01   2/26/2019 08:59:36   C:\Test\test2.txt
+    12/4/2018 08:29:41    2/26/2019 08:57:05   C:\Test\powershell_list.txt
+    2/20/2019 08:15:59    2/26/2019 12:09:43   C:\Test\CreateTestFile.txt
+    2/20/2019 08:15:59    2/26/2019 12:07:41   C:\Test\Command.txt
+    2/20/2019 08:15:59    2/26/2019 08:57:52   C:\Test\ReadOnlyFile.txt
+    11/29/2018 15:16:50   12/4/2018 16:16:24   C:\Test\LogData.txt
+    2/25/2019 18:25:11    2/26/2019 12:08:47   C:\Test\Zsystemlog.txt
+    2/25/2019 18:25:11    2/26/2019 08:55:33   C:\Test\Bfile.txt
+    2/26/2019 08:46:59    2/26/2019 12:12:19   C:\Test\LogFile3.txt
+    
+    The `Get-ChildItem` cmdlet uses the Path parameter to specify the directory `C:\Test` and all of the `*.txt` files. The objects are sent down the pipeline to the `Sort-Object` cmdlet. `Sort-Object` uses the Property parameter with a scriptblock to determine each files time span between CreationTime and LastWriteTime .
+    ------------- Example 7: Sort names in a text file -------------
+    
+    # All items unsorted
+    Get-Content -Path C:\Test\ServerNames.txt
+    
+    localhost
+    server01
+    server25
+    LOCALHOST
+    Server19
+    server3
+    localhost
+    
+    # All items sorted
+    Get-Content -Path C:\Test\ServerNames.txt | Sort-Object
+    localhost
+    LOCALHOST
+    localhost
+    server01
+    Server19
+    server25
+    server3
+    
+    # Unique filtered items sorted
+    Get-Content -Path C:\Test\ServerNames.txt | Sort-Object -Unique
+    
+    localhost
+    server01
+    Server19
+    server25
+    server3
+    
+    The `Get-Content` cmdlet uses the Path parameter to specify the directory and filename. The file `ServerNames.txt` contains an unsorted list of computer names.
+    
+    The `Get-Content` cmdlet uses the Path parameter to specify the directory and filename. The file `ServerNames.txt` contains an unsorted list of computer names. The objects are sent down the pipeline to the `Sort-Object` cmdlet. `Sort-Object` sorts the list in the default order, ascending.
+    
+    The `Get-Content` cmdlet uses the Path parameter to specify the directory and filename. The file `ServerNames.txt` contains an unsorted list of computer names. The objects are sent down the pipeline to the `Sort-Object` cmdlet. `Sort-Object` uses the Unique parameter to remove duplicate computer names. The list is sorted in the default order, ascending.
+    ------------ Example 8: Sort a string as an integer ------------
+    
+    # String sorted
+    Get-Content -Path C:\Test\ProductId.txt | Sort-Object
+    
+    0
+    1
+    12345
+    1500
+    2
+    2800
+    3500
+    4100
+    500
+    6200
+    77
+    88
+    99999
+    
+    # Integer sorted
+    Get-Content -Path C:\Test\ProductId.txt | Sort-Object {[int]$_}
+    
+    0
+    1
+    2
+    77
+    88
+    500
+    1500
+    2800
+    3500
+    4100
+    6200
+    12345
+    99999
+    
+    In the second example, `Get-Content` gets the contents of the file and pipes lines to the `Sort-Object` cmdlet. `Sort-Object` uses a script block to convert the strings to integers. In the sample code, `[int]` converts the string to an integer and `$_` represents each string as it comes down the pipeline. The integer objects are sent down the pipeline to the `Sort-Object` cmdlet. `Sort-Object` sorts the integer objects in numeric order.
+    ---------------- Example 9: Using stable sorts ----------------
+    
+    1..20 |Sort-Object {$_ % 3}
+    
+    18
+    3
+    15
+    6
+    12
+    9
+    1
+    16
+    13
+    10
+    7
+    4
+    19
+    11
+    8
+    14
+    5
+    17
+    2
+    20
+    
+    1..20 |Sort-Object {$_ % 3} -Stable
+    
+    3
+    6
+    9
+    12
+    15
+    18
+    1
+    4
+    7
+    10
+    13
+    16
+    19
+    2
+    5
+    8
+    11
+    14
+    17
+    20
+    
+    The output from the first sort is correctly grouped by the modulus value but the individual items aren't sorted within the modulus range. The second sort uses the Stable option to return a stable sort.
+        ---------- - Example 10: Sort by multiple properties -----------
+    
+        Get-ChildItem -Path C:\Test | Sort-Object Length, Name
+    
+        Directory: C:\Test
+    
+        Mode                 LastWriteTime         Length Name
+        ----                 ------------ - ------ ----
+        -a-- - 13 / 10 / 2021    22:16              2 File01.txt
+        -a---          13/10/2021    22:16              2 File03.txt
+        -a---          13/10/2021    22:18             64 File02.txt
+        -a---          13/10/2021    22:18             64 File04.txt
+    
+        The `Get-ChildItem` cmdlet gets the files from the directory specified by the Path parameter. The objects are sent down the pipeline to the `Sort-Object` cmdlet. `Sort-Object` uses the Length and Name parameter to sort the files by length in ascending order. Since `File01.txt` and `File03.txt` have the same length, they're further sorted by their property Name .
+    ----------- Example 11: Sort hashtables by key value -----------
+    
+    @(
+        @{ name = 'a' ; weight = 7 }
+        @{ name = 'b' ; weight = 1 }
+        @{ name = 'c' ; weight = 3 }
+        @{ name = 'd' ; weight = 7 }
+    ) | Sort-Object -Property weight -OutVariable Sorted
+    
+    $Sorted | ForEach-Object -Process { "{0}: {1}" -f $_.name, $_.weight }
+    
+    Name                           Value
+    ----                           -----
+    Weight                         1
+    Name                           b
+    Weight                         3
+    Name                           c
+    Weight                         7
+    Name                           a
+    Weight                         7
+    Name                           d
+    
+    b: 1
+    c: 3
+    a: 7
+    d: 7
+    
+    
+    
+RELATED LINKS
+    Online Version: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/sort-object?view=powershell-7.5&WT.mc_id=ps-gethelp
+    about_Calculated_Properties 
+    about_Hash_Tables 
+    about_Types.ps1xml 
+    Compare-Object 
+    ForEach-Object 
+    Group-Object 
+    Measure-Object 
+    New-Object 
+    Select-Object 
+    Tee-Object 
+
+
+
+
+
+NAME
+    Measure-Object
+    
+SYNOPSIS
+    Calculates the numeric properties of objects, and the characters, words, and lines in string objects, such as files of text.
+    
+    
+SYNTAX
+    Measure-Object [[-Property] <Microsoft.PowerShell.Commands.PSPropertyExpression[]>] [-AllStats] [-Average] [-InputObject <System.Management.Automation.PSObject>] [-Maximum] [-Minimum] [-StandardDeviation] [-Sum] [<CommonParameters>]
+    
+    Measure-Object [[-Property] <Microsoft.PowerShell.Commands.PSPropertyExpression[]>] [-Character] [-IgnoreWhiteSpace] [-InputObject <System.Management.Automation.PSObject>] [-Line] [-Word] [<CommonParameters>]
+    
+    
+DESCRIPTION
+    The `Measure-Object` cmdlet calculates the property values of certain types of object. `Measure-Object` performs three types of measurements, depending on the parameters in the command.
+    
+    The `Measure-Object` cmdlet performs calculations on the property values of objects. You can use `Measure-Object` to count objects or count objects with a specified Property . You can also use `Measure-Object` to calculate the Minimum , Maximum , Sum , StandardDeviation and Average of numeric values. For String objects, you can also use `Measure-Object` to count the number of lines, words, and characters.
+    
+
+PARAMETERS
+    -AllStats <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet displays all the statistics of the specified properties.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Average <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet displays the average value of the specified properties.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Character <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet counts the number of characters in the input objects.
+        
+        > [!NOTE] > The Word , Char and Line switches count inside each input object, as well as across > input objects. See Example 7.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -IgnoreWhiteSpace <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet ignores white space in character counts. By default, white space is not ignored.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -InputObject <System.Management.Automation.PSObject>
+        Specifies the objects to be measured. Enter a variable that contains the objects, or type a command or expression that gets the objects.
+        
+        When you use the InputObject parameter with `Measure-Object`, instead of piping command results to `Measure-Object`, the InputObject value is treated as a single object.
+        
+        It is recommended that you use `Measure-Object` in the pipeline if you want to measure a collection of objects based on whether the objects have specific values in defined properties.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       True (ByValue)
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Line <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet counts the number of lines in the input objects.
+        
+        > [!NOTE] > The Word , Char and Line switches count inside each input object, as well as across > input objects. See Example 7.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Maximum <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet displays the maximum value of the specified properties.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Minimum <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet displays the minimum value of the specified properties.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Property <Microsoft.PowerShell.Commands.PSPropertyExpression[]>
+        Specifies one or more properties to measure. If you do not specify any other measures, `Measure-Object` counts the objects that have the properties you specify.
+        
+        The value of the Property parameter can be a new calculated property. The calculated property must be a script block. For more information, see about_Calculated_Properties (../Microsoft.PowerShell.Core/About/about_Calculated_Properties.md).
+        
+        Required?                    false
+        Position?                    0
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  true
+        
+    -StandardDeviation <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet displays the standard deviation of the values of the specified properties.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Sum <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet displays the sum of the values of the specified properties.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Word <System.Management.Automation.SwitchParameter>
+        Indicates that the cmdlet counts the number of words in the input objects.
+        
+        > [!NOTE] > The Word , Char and Line switches count inside each input object, as well as across > input objects. See Example 7.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    <CommonParameters>
+        This cmdlet supports the common parameters: Verbose, Debug,
+        ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+        OutBuffer, PipelineVariable, and OutVariable. For more information, see
+        about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216). 
+    
+INPUTS
+    System.Management.Automation.PSObject
+        You can pipe objects to this cmdlet.
+    
+    
+OUTPUTS
+    Microsoft.PowerShell.Commands.GenericMeasureInfo
+        By default, this cmdlet returns a GenericMeasureInfo object.
+    
+    Microsoft.PowerShell.Commands.TextMeasureInfo
+        When you use the Word parameter, this cmdlet returns a TextMeasureInfo object.
+    
+    
+NOTES
+    
+    
+        PowerShell includes the following aliases for `Measure-Object`:
+        
+        - All platforms:   - `measure`
+        
+        Starting in PowerShell 7.3, `Measure-Object` no longer returns an error when processing an object that is missing the property being measured unless you are running in StrictMode . In StrictMode , `Measure-Object` returns a `System.Management.Automation.PSArgumentException` when processing an object that is missing the specified property.
+    
+    ---- Example 1: Count the files and folders in a directory ----
+    
+    Get-ChildItem | Measure-Object
+    
+    
+    --------- Example 2: Measure the files in a directory ---------
+    
+    Get-ChildItem | Measure-Object -Property Length -Minimum -Maximum -Sum -Average
+    
+    
+    ------------ Example 3: Measure text in a text file ------------
+    
+    "One", "Two", "Three", "Four" | Set-Content -Path C:\Temp\tmp.txt
+    Get-Content C:\Temp\tmp.txt | Measure-Object -Character -Line -Word
+    
+    Lines Words Characters Property
+    ----- ----- ---------- --------
+        4     4         15
+    
+    
+    -- Example 4: Measure objects containing a specified Property --
+    
+    $services = Get-Service
+    $processes = Get-Process
+    $services + $processes | Measure-Object
+    $services + $processes | Measure-Object -Property DisplayName
+    
+    Count    : 682
+    Average  :
+    Sum      :
+    Maximum  :
+    Minimum  :
+    Property :
+    
+    Count    : 290
+    Average  :
+    Sum      :
+    Maximum  :
+    Minimum  :
+    Property : DisplayName
+    
+    
+    -------- Example 5: Measure the contents of a CSV file --------
+    
+    Import-Csv D:\test\serviceyrs.csv | Measure-Object -Property Years -Minimum -Maximum -Average
+    
+    
+    -------------- Example 6: Measure Boolean values --------------
+    
+    Get-ChildItem | Measure-Object -Property PSIsContainer -Maximum -Sum -Minimum -Average
+    
+    Count             : 126
+    Average           : 0.0634920634920635
+    Sum               : 8
+    Maximum           : 1
+    Minimum           : 0
+    StandardDeviation :
+    Property          : PSIsContainer
+    
+    
+    ------------------ Example 7: Measure strings ------------------
+    
+    # The newline character `n separates the string into separate lines, as shown in the output.
+    "One`nTwo`nThree"
+    "One`nTwo`nThree" | Measure-Object -Line
+    
+    One
+    Two
+    Three
+    
+    
+    Lines Words Characters Property
+    ----- ----- ---------- --------
+        3
+    
+    # The first string counts as a single line.
+    # The second string is separated into two lines by the newline character.
+    "One", "Two`nThree" | Measure-Object -Line
+    
+    Lines Words Characters Property
+    ----- ----- ---------- --------
+        3
+    
+    # The Word switch counts the number of words in each InputObject
+    # Each InputObject is treated as a single line.
+    "One, Two", "Three", "Four Five" | Measure-Object -Word -Line
+    
+    Lines Words Characters Property
+    ----- ----- ---------- --------
+        3     5
+    
+    
+    -------------- Example 8: Measure all the values --------------
+    
+    1..5 | Measure-Object -AllStats
+    
+    Count             : 5
+    Average           : 3
+    Sum               : 15
+    Maximum           : 5
+    Minimum           : 1
+    StandardDeviation : 1.58113883008419
+    Property          :
+    
+    
+    ------- Example 9: Measure using scriptblock properties -------
+    
+    Get-ChildItem | Measure-Object -Sum {$_.Length/1MB}
+    
+    
+    ---------------- Example 10: Measure hashtables ----------------
+    
+    @{num=3}, @{num=4}, @{num=5} | Measure-Object -Maximum Num
+    
+    Count             : 3
+    Average           :
+    Sum               :
+    Maximum           : 5
+    Minimum           :
+    StandardDeviation :
+    Property          : num
+    
+    
+    ---------- Example 11: Measure the Standard Deviation ----------
+    
+    Get-Process | Measure-Object -Average -StandardDeviation CPU
+    
+    Count             : 303
+    Average           : 163.032384488449
+    Sum               :
+    Maximum           :
+    Minimum           :
+    StandardDeviation : 859.444048419069
+    Property          : CPU
+    
+    
+    ------------- Example 12: Measure using wildcards -------------
+    
+    Get-Process | Measure-Object -Maximum *paged*memory*size
+    
+    Count             : 303
+    Average           :
+    Sum               :
+    Maximum           : 735784
+    Minimum           :
+    StandardDeviation :
+    Property          : NonpagedSystemMemorySize
+    
+    Count             : 303
+    Average           :
+    Sum               :
+    Maximum           : 352104448
+    Minimum           :
+    StandardDeviation :
+    Property          : PagedMemorySize
+    
+    Count             : 303
+    Average           :
+    Sum               :
+    Maximum           : 2201968
+    Minimum           :
+    StandardDeviation :
+    Property          : PagedSystemMemorySize
+    
+    Count             : 303
+    Average           :
+    Sum               :
+    Maximum           : 719032320
+    Minimum           :
+    StandardDeviation :
+    Property          : PeakPagedMemorySize
+    
+    
+    
+RELATED LINKS
+    Online Version: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/measure-object?view=powershell-7.5&WT.mc_id=ps-gethelp
+    about_Calculated_Properties 
+    Compare-Object 
+    ForEach-Object 
+    Group-Object 
+    New-Object 
+    Select-Object 
+    Sort-Object 
+    Tee-Object 
+    Where-Object 
+
+
+
+NAME
+    ConvertTo-Json
+    
+SYNOPSIS
+    Converts an object to a JSON-formatted string.
+    
+    
+SYNTAX
+    ConvertTo-Json [-InputObject] <System.Object> [-AsArray] [-Compress] [-Depth <System.Int32>] [-EnumsAsStrings] [-EscapeHandling <Newtonsoft.Json.StringEscapeHandling>] [<CommonParameters>]
+    
+    
+DESCRIPTION
+    The `ConvertTo-Json` cmdlet converts any .NET object to a string in JavaScript Object Notation (JSON) format. The properties are converted to field names, the field values are converted to property values, and the methods are removed.
+    
+    > [!NOTE] > As of PowerShell 7.2, Extended Type System properties of DateTime and String objects are > no longer serialized and only the simple object is converted to JSON format
+    
+    You can then use the `ConvertFrom-Json` cmdlet to convert a JSON-formatted string to a JSON object, which is easily managed in PowerShell.
+    
+    Many web sites use JSON instead of XML to serialize data for communication between servers and web-based apps.
+    
+    As of PowerShell 7.1, `ConvertTo-Json` emits a warning if the depth of the input object exceeds the depth specified for the command. This prevents unwanted data loss when converting objects.
+    
+    As of PowerShell 7.5-preview.3, `ConvertTo-Json` can serialize BigInteger values as raw JSON numbers.
+    
+    This cmdlet was introduced in Windows PowerShell 3.0.
+    
+
+PARAMETERS
+    -AsArray <System.Management.Automation.SwitchParameter>
+        Outputs the object in array brackets, even if the input is a single object.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Compress <System.Management.Automation.SwitchParameter>
+        Omits white space and indented formatting in the output string.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -Depth <System.Int32>
+        Specifies how many levels of contained objects are included in the JSON representation. The value can be any number from `0` to `100`. The default value is `2`. `ConvertTo-Json` emits a warning if the number of levels in an input object exceeds this number.
+        
+        Required?                    false
+        Position?                    named
+        Default value                2
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -EnumsAsStrings <System.Management.Automation.SwitchParameter>
+        Provides an alternative serialization option that converts all enumerations to their string representation.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -EscapeHandling <Newtonsoft.Json.StringEscapeHandling>
+        Controls how certain characters are escaped in the resulting JSON output. By default, only control characters (like newline) are escaped.
+        
+        Acceptable values are:
+        
+        - Default - Only control characters are escaped.
+        
+        - EscapeNonAscii - All non-ASCII and control characters are escaped.
+        
+        - EscapeHtml - HTML (`<`, `>`, `&`, `'`, `"`) and control characters are escaped.
+        
+        
+        This parameter was introduced in PowerShell 6.2.
+        
+        
+        Required?                    false
+        Position?                    named
+        Default value                Default
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+        -InputObject <System.Object>
+        Specifies the objects to convert to JSON format. Enter a variable that contains the objects, or type a command or expression that gets the objects. You can also pipe an object to `ConvertTo-Json`.
+        
+        The InputObject parameter is required, but its value can be null (`$null`) or an empty string. When the input object is `$null`, `ConvertTo-Json` returns the JSON representation of `null`. When the input object is an empty string, `ConvertTo-Json` returns the JSON representation of an empty string.
+        
+            Required?                    true
+            Position?                    0
+            Default value                None
+            Accept pipeline input?       True (ByValue)
+            Aliases                      none
+            Accept wildcard characters?  false
+        
+            <CommonParameters>
+            This cmdlet supports the common parameters: Verbose, Debug,
+            ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+            OutBuffer, PipelineVariable, and OutVariable. For more information, see
+            about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216). 
+    
+            INPUTS
+            System.Object
+            You can pipe any object to this cmdlet.
+    
+    
+            OUTPUTS
+            System.String
+            This cmdlet returns a string representing the input object converted to a JSON string.
+    
+    
+            NOTES
+    
+    
+            The `ConvertTo-Json` cmdlet is implemented using Newtonsoft Json.NET (https://www.newtonsoft.com/json).
+    
+            -------------------------- Example 1 --------------------------
+    
+            (Get-UICulture).Calendar | ConvertTo-Json
+    
+            {
+                "MinSupportedDateTime": "0001-01-01T00:00:00",
+                "MaxSupportedDateTime": "9999-12-31T23:59:59.9999999",
+                "AlgorithmType": 1,
+                "CalendarType": 1,
+                "Eras": [
+                1
+                ],
+                "TwoDigitYearMax": 2029,
+                "IsReadOnly": true
+            }
+    
+            This command uses the `ConvertTo-Json` cmdlet to convert a GregorianCalendar object to a JSON-formatted string.
+            -------------------------- Example 2 --------------------------
+    
+            Get-Date | ConvertTo-Json; Get-Date | ConvertTo-Json -AsArray
+    
+            "2021-08-05T16:13:05.6394416-07:00"
+            [
+            "2021-08-05T16:13:05.6421709-07:00"
+            ]
+    
+            This example shows the output from `ConvertTo-Json` cmdlet with and without the AsArray switch parameter. You can see the second portion of the output is wrapped in array brackets.
+            -------------------------- Example 3 --------------------------
+    
+            @{Account = "User01"; Domain = "Domain01"; Admin = "True" } | ConvertTo-Json -Compress
+    
+            { "Domain":"Domain01", "Account":"User01", "Admin":"True" }
+    
+            This command shows the effect of using the Compress parameter of `ConvertTo-Json`. The compression affects only the appearance of the string, not its validity.
+            -------------------------- Example 4 --------------------------
+    
+            Get-Date | Select-Object -Property * | ConvertTo-Json
+    
+            {
+                "DisplayHint": 2,
+                "DateTime": "October 12, 2018 10:55:32 PM",
+                "Date": "2018-10-12T00:00:00-05:00",
+                "Day": 12,
+                "DayOfWeek": 5,
+                "DayOfYear": 285,
+                "Hour": 22,
+                "Kind": 2,
+                "Millisecond": 639,
+                "Minute": 55,
+                "Month": 10,
+                "Second": 32,
+                "Ticks": 636749817326397744,
+                "TimeOfDay": {
+                    "Ticks": 825326397744,
+                    "Days": 0,
+                    "Hours": 22,
+                    "Milliseconds": 639,
+                    "Minutes": 55,
+                    "Seconds": 32,
+                    "TotalDays": 0.95523888627777775,
+                    "TotalHours": 22.925733270666665,
+                    "TotalMilliseconds": 82532639.774400011,
+                    "TotalMinutes": 1375.54399624,
+                    "TotalSeconds": 82532.6397744
+                },
+                "Year": 2018
+            }
+    
+            This example uses the `ConvertTo-Json` cmdlet to convert a System.DateTime object from the `Get-Date` cmdlet to a JSON-formatted string. The command uses the `Select-Object` cmdlet to get all (` `) of the properties of the DateTime * object. The output shows the JSON string that `ConvertTo-Json` returned.
+                -------------------------- Example 5 --------------------------
+    
+                Get-Date | Select-Object -Property * | ConvertTo-Json | ConvertFrom-Json
+    
+                DisplayHint : 2
+                DateTime    : October 12, 2018 10:55:52 PM
+                Date        : 2018-10-12 12:00:00 AM
+                Day         : 12
+                DayOfWeek   : 5
+                DayOfYear   : 285
+                Hour        : 22
+                Kind        : 2
+                Millisecond : 768
+                Minute      : 55
+                Month       : 10
+                Second      : 52
+                Ticks       : 636749817527683372
+                TimeOfDay   : @{Ticks = 825527683372; Days = 0; Hours = 22; Milliseconds = 768; Minutes = 55; Seconds = 52;
+                    TotalDays = 0.95547185575463; TotalHours = 22.9313245381111; TotalMilliseconds = 82552768.3372;
+                    TotalMinutes = 1375.87947228667; TotalSeconds = 82552.7683372 }
+                Year        : 2018
+    
+                This example shows how to use the `ConvertTo-Json` and `ConvertFrom-Json` cmdlets to convert an object to a JSON string and a JSON object.
+    
+                RELATED LINKS
+                Online Version: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/convertto-json?view=powershell-7.5&WT.mc_id=ps-gethelp
+                An Introduction to JavaScript Object Notation (JSON) in JavaScript and .NET 
+                ConvertFrom-Json 
+                Get-Content 
+                Get-UICulture 
+                Invoke-WebRequest 
+                Invoke-RestMethod 
+                NewtonSoft.Json.StringEscapeHandling https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_StringEscapeHandling.htm
+
+
+
+
+                NAME
+                ConvertTo-Csv
+    
+                SYNOPSIS
+                Converts .NET objects into a series of character-separated value (CSV) strings.
+    
+    
+                SYNTAX
+                ConvertTo-Csv [-InputObject] <System.Management.Automation.PSObject> [[-Delimiter] <System.Char>] [-IncludeTypeInformation] [-NoHeader] [-NoTypeInformation] [-QuoteFields <System.String[]>] [-UseQuotes <Microsoft.PowerShell.Commands.BaseCsvWritingCommand+QuoteKind>] [<CommonParameters>]
+    
+                ConvertTo-Csv [-InputObject] <System.Management.Automation.PSObject> [-IncludeTypeInformation] [-NoHeader] [-NoTypeInformation] [-QuoteFields <System.String[]>] [-UseCulture] [-UseQuotes <Microsoft.PowerShell.Commands.BaseCsvWritingCommand+QuoteKind>] [<CommonParameters>]
+    
+    
+                DESCRIPTION
+                The `ConvertTo-Csv` cmdlet returns a series of character-separated value (CSV) strings that represent the objects that you submit. You can then use the `ConvertFrom-Csv` cmdlet to recreate objects from the CSV strings. The objects converted from CSV are string values of the original objects that contain property values and no methods.
+    
+                You can use the `Export-Csv` cmdlet to convert objects to CSV strings. `Export-Csv` is similar to `ConvertTo-Csv`, except that it saves the CSV strings to a file.
+    
+                The `ConvertTo-Csv` cmdlet has parameters to specify a delimiter other than a comma or use the current culture as the delimiter.
+    
+
+                PARAMETERS
+                -Delimiter <System.Char>
+                Specifies the delimiter to separate the property values in CSV strings. The default is a comma (`,`). Enter a character, such as a colon (`:`). To specify a semicolon (`;`) enclose it in single quotation marks.
+        
+                            Required?                    false
+                            Position?                    1
+                            Default value                comma (, )
+                            Accept pipeline input?       False
+                            Aliases                      none
+                            Accept wildcard characters?  false
+        
+                            -IncludeTypeInformation <System.Management.Automation.SwitchParameter>
+                            When this parameter is used the first line of the output contains `#TYPE` followed by the fully qualified name of the object type. For example, `#TYPE System.Diagnostics.Process`.
+        
+                            This parameter was introduced in PowerShell 6.0.
+        
+                            Required?                    false
+                            Position?                    named
+                            Default value                False
+                            Accept pipeline input?       False
+                            Aliases                      ITI
+                            Accept wildcard characters?  false
+        
+                            -InputObject <System.Management.Automation.PSObject>
+                            Specifies the objects that are converted to CSV strings. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe objects to `ConvertTo-Csv`.
+        
+                            Required?                    true
+                            Position?                    0
+                            Default value                None
+                            Accept pipeline input?       True (ByPropertyName, ByValue)
+                            Aliases                      none
+                            Accept wildcard characters?  false
+        
+                            -NoHeader <System.Management.Automation.SwitchParameter>
+                            When this parameter is used, the cmdlet doesn't write a header row containing the column names to the output.
+        
+        This parameter was added in PowerShell 7.4.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -NoTypeInformation <System.Management.Automation.SwitchParameter>
+        Removes the `#TYPE` information header from the output. This parameter became the default in PowerShell 6.0 and is included for backwards compatibility.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      NTI
+        Accept wildcard characters?  false
+        
+    -QuoteFields <System.String[]>
+        Specifies the names of the columns that should be quoted. When this parameter is used only the specified columns are quoted. This parameter was added in PowerShell 7.0.
+        
+        Required?                    false
+        Position?                    named
+        Default value                None
+        Accept pipeline input?       False
+        Aliases                      QF
+        Accept wildcard characters?  false
+        
+    -UseCulture <System.Management.Automation.SwitchParameter>
+        Uses the list separator for the current culture as the item delimiter. To find the list separator for a culture, use the following command: `(Get-Culture).TextInfo.ListSeparator`.
+        
+        Required?                    false
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       False
+        Aliases                      none
+        Accept wildcard characters?  false
+        
+    -UseQuotes <Microsoft.PowerShell.Commands.BaseCsvWritingCommand+QuoteKind>
+        Specifies when quotes are used in the CSV files. Possible values are:
+        
+        - Never - don't quote anything
+        
+                            - Always - quote everything (default behavior)
+        
+                            - AsNeeded - only quote fields that contain a delimiter character, double-quote, or newline
+        
+                            character
+        
+                            This parameter was added in PowerShell 7.0.
+        
+                            Required?                    false
+                            Position?                    named
+                            Default value                Always
+                            Accept pipeline input?       False
+                            Aliases                      UQ
+                            Accept wildcard characters?  false
+        
+                            <CommonParameters>
+                            This cmdlet supports the common parameters: Verbose, Debug,
+                            ErrorAction, ErrorVariable, WarningAction, WarningVariable,
+                            OutBuffer, PipelineVariable, and OutVariable. For more information, see
+                            about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216). 
+    
+                            INPUTS
+                            System.Management.Automation.PSObject
+                            You can pipe any object that has an Extended Type System (ETS) adapter to this cmdlet.
+    
+    
+                            OUTPUTS
+                            System.String
+                            This cmdlet returns one or more strings representing each converted object.
+    
+    
+                            NOTES
+    
+    
+                            In CSV format, each object is represented by a character-separated list of its property value. The property values are converted to strings using the object's ToString() method. The strings are represented by the property value name. `ConvertTo-Csv` does not export the object's methods.
+        
+                            The CSV strings are output as follows:
+        
+                            - If IncludeTypeInformation is used, the first string consists of #TYPE followed by the   object type's fully qualified name. For example, #TYPE System.Diagnostics.Process . - If IncludeTypeInformation is not used the first string includes the column headers. The   headers contain the first object's property names as a character-separated list. - The remaining strings contain character-separated lists of each object's property values.
+        
+                            Beginning with PowerShell 6.0 the default behavior of `ConvertTo-Csv` is to not include the #TYPE information in the CSV and NoTypeInformation is implied. IncludeTypeInformation can be used to include the #TYPE information and emulate the default behavior of `ConvertTo-Csv` prior to PowerShell 6.0.
+        
+                            When you submit multiple objects to `ConvertTo-Csv`, `ConvertTo-Csv` orders the strings based on the properties of the first object that you submit. If the remaining objects do not have one of the specified properties, the property value of that object is Null, as represented by two consecutive commas. If the remaining objects have additional properties, those property values are ignored.
+    
+                            ------------ - Example 1: Convert an object to CSV -------------
+    
+                            Get-Process -Name pwsh | ConvertTo-Csv -NoTypeInformation
+    
+                            "Name", "SI", "Handles", "VM", "WS", "PM", "NPM", "Path", "Parent", "Company", "CPU", "FileVersion", ...
+                            "pwsh", "8", "950", "2204001161216", "100925440", "59686912", "67104", ...
+    
+                            The `Get-Process` cmdlet gets the Process object and uses the Name parameter to specify the PowerShell process. The process object is sent down the pipeline to the `ConvertTo-Csv` cmdlet. The `ConvertTo-Csv` cmdlet converts the object to CSV strings. The NoTypeInformation parameter removes the #TYPE information header from the CSV output and is not required in PowerShell 6.
+                            -------- - Example 2: Convert a DateTime object to CSV ---------
+    
+                            $Date = Get-Date
+                            ConvertTo-Csv -InputObject $Date -Delimiter ';' -NoTypeInformation
+    
+                            "DisplayHint"; "DateTime"; "Date"; "Day"; "DayOfWeek"; "DayOfYear"; "Hour"; "Kind"; "Millisecond"; "Minute"; "Month"; "Second"; "Ticks"; "TimeOfDay"; "Year"
+                            "DateTime"; "Friday, January 4, 2019 14:40:51"; "1/4/2019 00:00:00"; "4"; "Friday"; "4"; "14"; "Local"; "711"; "40"; "1"; "51"; "636822096517114991"; "14:40:51.7114991"; "2019"
+    
+                            The `Get-Date` cmdlet gets the DateTime object and saves it in the `$Date` variable. The `ConvertTo-Csv` cmdlet converts the DateTime object to strings. The InputObject parameter uses the DateTime object stored in the `$Date` variable. The Delimiter parameter specifies a semicolon to separate the string values. The NoTypeInformation parameter removes the #TYPE information header from the CSV output and is not required in PowerShell 6.
+                            ------ Example 3: Convert the PowerShell event log to CSV ------
+    
+                            (Get-Culture).TextInfo.ListSeparator
+                            Get-WinEvent -LogName 'PowerShellCore/Operational' |
+                            ConvertTo-Csv -UseCulture -NoTypeInformation
+    
+                            ,
+                            "Message", "Id", "Version", "Qualifiers", "Level", "Task", "Opcode", "Keywords", "RecordId", ...
+                            "Error Message = System error""4100", "1", , "3", "106", "19", "0", "31716", "PowerShellCore", ...
+    
+                            The `Get-Culture` cmdlet uses the nested properties TextInfo and ListSeparator and displays the current culture's default list separator. The `Get-WinEvent` cmdlet gets the event log objects and uses the LogName parameter to specify the log file name. The event log objects are sent down the pipeline to the `ConvertTo-Csv` cmdlet. The `ConvertTo-Csv` cmdlet converts the event log objects to a series of CSV strings. The UseCulture parameter uses the current culture's default list separator as the delimiter. The NoTypeInformation parameter removes the #TYPE information header from the CSV output and is not required in PowerShell 6.
+                            -- - Example 4: Convert to CSV with quotes around two columns ---
+    
+                            Get-Date | ConvertTo-Csv -QuoteFields "DateTime", "Date"
+    
+                            DisplayHint, "DateTime", "Date", Day, DayOfWeek, DayOfYear, Hour, Kind, Millisecond, Minute, Month, Second, Ticks, TimeOfDay, Year
+                            DateTime, "Thursday, August 22, 2019 11:27:34 AM", "8/22/2019 12:00:00 AM", 22, Thursday, 234, 11, Local, 569, 27, 8, 34, 637020700545699784, 11:27:34.5699784, 2019
+    
+    
+                            ---- Example 5: Convert to CSV with quotes only when needed ----
+    
+                            Get-Date | ConvertTo-Csv -UseQuotes AsNeeded
+    
+                            DisplayHint, DateTime, Date, Day, DayOfWeek, DayOfYear, Hour, Kind, Millisecond, Minute, Month, Second, Ticks, TimeOfDay, Year
+                            DateTime, "Thursday, August 22, 2019 11:31:00 AM", 8/22/2019 12:00:00 AM, 22, Thursday, 234, 11, Local, 713, 31, 8, 0, 637020702607132640, 11:31:00.7132640, 2019
+    
+    
+                            ------------ - Example 6: Convert hashtables to CSV -------------
+    
+                            $person1 = @{
+                                Name   = 'John Smith'
+                                Number = 1
+                            }
+    
+                            $person2 = @{
+                                Name   = 'Jane Smith'
+                                Number = 2
+                            }
+    
+                            $allPeople = $person1, $person2
+                            $allPeople | ConvertTo-Csv
+    
+                            "Name", "Number"
+                            "John Smith", "1"
+                            "Jane Smith", "2"
+    
+    
+                            Example 7: Converting hashtables to CSV with additional properties
+    
+                            $allPeople | Add-Member -Name ExtraProp -Value 42
+                            $allPeople | ConvertTo-Csv
+    
+                            "Name", "Number", "ExtraProp"
+                            "John Smith", "1", "42"
+                            "Jane Smith", "2", "42"
+    
+                            Each hashtable has a property named `ExtraProp` added by `Add-Member` and then converted to CSV. You can see `ExtraProp` is now a header in the output.
+    
+                            If an added property has the same name as a key from the hashtable, the key takes precedence and only the key is converted to CSV.
+    
+                            RELATED LINKS
+                            Online Version: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/convertto-csv?view=powershell-7.5&WT.mc_id=ps-gethelp
+                            ConvertFrom-Csv 
+                            Export-Csv 
+                            Import-Csv 
+
+
+
+
